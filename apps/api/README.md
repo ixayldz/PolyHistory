@@ -69,7 +69,7 @@ REDIS_URL=redis://redis:6379/0
 # Security
 SECRET_KEY=your-super-secret-key
 
-# AI Model API Keys (at least 2 required)
+# AI Model API Keys (optional, deterministic fallback exists)
 GEMINI_API_KEY=your-gemini-key
 OPENAI_API_KEY=sk-your-openai-key
 ANTHROPIC_API_KEY=sk-ant-your-claude-key
@@ -207,7 +207,7 @@ app/
 | `GET` | `/api/v1/cases/{id}/evidence` | Get evidence pack |
 | `GET` | `/api/v1/cases/{id}/timeline` | Get timeline data |
 | `GET` | `/api/v1/cases/{id}/consensus` | Get consensus analysis |
-| `POST` | `/api/v1/export/{id}` | Export report |
+| `POST` | `/api/v1/cases/{id}/export` | Export report |
 
 ### Example Requests
 

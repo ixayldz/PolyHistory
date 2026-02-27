@@ -19,4 +19,5 @@ celery_app.conf.update(
     task_track_started=True,
     task_time_limit=300,  # 5 minutes
     worker_prefetch_multiplier=1,
+    task_always_eager=settings.CELERY_TASK_ALWAYS_EAGER,
 )

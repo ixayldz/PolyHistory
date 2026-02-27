@@ -4,7 +4,10 @@ import {
   ConsensusData, TimelineEvent, CreateCaseInput 
 } from '@/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1'
+const rawApiBase = process.env.NEXT_PUBLIC_API_URL?.trim()
+const API_BASE_URL = rawApiBase
+  ? (rawApiBase.endsWith('/api/v1') ? rawApiBase : `${rawApiBase.replace(/\/$/, '')}/api/v1`)
+  : '/api/v1'
 
 class ApiClient {
   private client: AxiosInstance
@@ -19,7 +22,7 @@ class ApiClient {
 
     // Request interceptor to add auth token
     this.client.interceptors.request.use((config) => {
-      const token = localStorage.getItem('access_token')
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }
@@ -30,7 +33,7 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && typeof window !== 'undefined') {
           localStorage.removeItem('access_token')
           window.location.href = '/auth/login'
         }
@@ -47,6 +50,11 @@ class ApiClient {
 
   async login(email: string, password: string): Promise<{ access_token: string; refresh_token: string }> {
     const response = await this.client.post('/auth/login', { email, password })
+    return response.data
+  }
+
+  async refresh(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+    const response = await this.client.post('/auth/refresh', { refresh_token: refreshToken })
     return response.data
   }
 
@@ -95,7 +103,11 @@ class ApiClient {
 
   // Export
   async exportCase(caseId: string, format: 'markdown' | 'pdf' | 'json' = 'markdown'): Promise<Blob> {
-    const response = await this.client.post(`/export/${caseId}`, { format }, { responseType: 'blob' })
+    const response = await this.client.post(
+      `/cases/${caseId}/export`,
+      { format, citation_style: 'chicago' },
+      { responseType: 'blob' }
+    )
     return response.data
   }
 }

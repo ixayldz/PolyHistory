@@ -1,9 +1,12 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import event
+from sqlalchemy import text
+import logging
+
 from app.core.config import get_settings
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 # Create async engine
 engine = create_async_engine(
@@ -26,6 +29,17 @@ AsyncSessionLocal = async_sessionmaker(
 # Base class for models
 Base = declarative_base()
 
+POLYHISTORY_TABLES = [
+    "claim_evidence",
+    "audit_logs",
+    "model_outputs",
+    "claims",
+    "snippets",
+    "evidence_items",
+    "cases",
+    "users",
+]
+
 
 async def get_db():
     """Dependency for getting database session."""
@@ -43,6 +57,36 @@ async def get_db():
 async def init_db():
     """Initialize database tables."""
     async with engine.begin() as conn:
+        # Ensure model metadata is registered before create_all.
+        import app.models  # noqa: F401
+
+        try:
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        except Exception as exc:
+            # Some managed Postgres environments do not permit extension creation.
+            logger.warning("Could not ensure pgvector extension on startup: %s", exc)
+
+        result = await conn.execute(
+            text(
+                """
+                SELECT udt_name
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'users'
+                  AND column_name = 'id'
+                """
+            )
+        )
+        row = result.first()
+
+        if row and row[0] != "uuid":
+            logger.warning(
+                "Detected incompatible users.id type (%s). Resetting PolyHistory tables.",
+                row[0],
+            )
+            for table in POLYHISTORY_TABLES:
+                await conn.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
+
         await conn.run_sync(Base.metadata.create_all)
 
 

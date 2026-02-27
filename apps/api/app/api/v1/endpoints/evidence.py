@@ -2,7 +2,8 @@ from uuid import UUID
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from app.api.deps import get_db, get_current_active_user
 from app.core.exceptions import NotFoundException
 from app import schemas, models
@@ -31,7 +32,11 @@ async def get_evidence(
         raise NotFoundException("Case", str(case_id))
     
     # Build query
-    query = select(models.EvidenceItem).where(models.EvidenceItem.case_id == case_id)
+    query = (
+        select(models.EvidenceItem)
+        .where(models.EvidenceItem.case_id == case_id)
+        .options(selectinload(models.EvidenceItem.snippets))
+    )
     
     if source_type:
         query = query.where(models.EvidenceItem.source_type == source_type)
@@ -45,14 +50,8 @@ async def get_evidence(
     result = await db.execute(query)
     evidence_items = result.scalars().all()
     
-    # Load snippets for each evidence item
     response_items = []
     for item in evidence_items:
-        snippets_result = await db.execute(
-            select(models.Snippet).where(models.Snippet.evidence_id == item.id)
-        )
-        snippets = snippets_result.scalars().all()
-        
         response_items.append(schemas.EvidenceItemResponse(
             id=item.id,
             title=item.title,
@@ -67,7 +66,7 @@ async def get_evidence(
             reliability_factors=item.reliability_factors,
             url=item.url,
             biblio_reference=item.biblio_reference,
-            snippets=[schemas.SnippetResponse.model_validate(s) for s in snippets]
+            snippets=[schemas.SnippetResponse.model_validate(s) for s in item.snippets]
         ))
     
     return response_items
@@ -93,21 +92,17 @@ async def get_evidence_item(
     
     # Get evidence item
     result = await db.execute(
-        select(models.EvidenceItem).where(
+        select(models.EvidenceItem)
+        .where(
             models.EvidenceItem.id == evidence_id,
             models.EvidenceItem.case_id == case_id
         )
+        .options(selectinload(models.EvidenceItem.snippets))
     )
     item = result.scalar_one_or_none()
     
     if not item:
         raise NotFoundException("Evidence", str(evidence_id))
-    
-    # Load snippets
-    snippets_result = await db.execute(
-        select(models.Snippet).where(models.Snippet.evidence_id == item.id)
-    )
-    snippets = snippets_result.scalars().all()
     
     return schemas.EvidenceItemResponse(
         id=item.id,
@@ -123,5 +118,5 @@ async def get_evidence_item(
         reliability_factors=item.reliability_factors,
         url=item.url,
         biblio_reference=item.biblio_reference,
-        snippets=[schemas.SnippetResponse.model_validate(s) for s in snippets]
+        snippets=[schemas.SnippetResponse.model_validate(s) for s in item.snippets]
     )

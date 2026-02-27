@@ -60,6 +60,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+
 # ============== Case Schemas ==============
 
 class TimeWindow(BaseModel):

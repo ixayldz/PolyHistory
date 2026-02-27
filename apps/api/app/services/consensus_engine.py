@@ -5,8 +5,6 @@ Computes weighted consensus from multiple model outputs.
 
 from typing import List, Dict, Any, Set, Tuple
 from dataclasses import dataclass, field
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
 from app.core.config import get_settings
 from app.services.judge.base import JudgeOutput
@@ -287,8 +285,8 @@ class ConsensusEngine:
             weight = self.EVIDENCE_WEIGHTS.get(source_type, 0.4) * reliability
             total_weight += weight
         
-        # Normalize (assuming max 10 evidence items)
-        return min(total_weight / 10, 1.0)
+        # Normalize against average support in this claim cluster.
+        return min(total_weight / len(evidence_refs), 1.0)
     
     def _majority_stance(self, group: List[Dict[str, Any]]) -> str:
         """Determine majority stance in claim group."""

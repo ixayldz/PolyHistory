@@ -7,7 +7,10 @@ import json
 import asyncio
 from typing import Dict, Any, List
 
-from anthropic import AsyncAnthropic
+try:
+    from anthropic import AsyncAnthropic
+except ImportError:  # pragma: no cover - optional dependency in local/offline mode
+    AsyncAnthropic = None
 
 from app.services.judge.base import BaseJudge, JudgeOutput, JudgeTimeoutError, JudgeParseError
 from app.core.config import get_settings
@@ -79,6 +82,8 @@ class ClaudeJudge(BaseJudge):
     def __init__(self, api_key: str = None):
         api_key = api_key or settings.ANTHROPIC_API_KEY
         super().__init__(api_key, timeout=settings.MODEL_TIMEOUT_SECONDS)
+        if AsyncAnthropic is None:
+            raise RuntimeError("anthropic package is not installed")
         self.client = AsyncAnthropic(api_key=api_key)
     
     async def analyze(

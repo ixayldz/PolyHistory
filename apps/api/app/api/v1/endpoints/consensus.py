@@ -62,21 +62,27 @@ async def get_consensus(
         elif claim.confidence_label == "medium":
             medium_claims.append(claim_data)
     
-    # Get model outputs for agreement matrix
-    models_result = await db.execute(
-        select(models.ModelOutput.model_name).where(
-            models.ModelOutput.case_id == case_id,
-            models.ModelOutput.status == "success"
+    # Use stored agreement matrix when available.
+    matrix_data = (case.consensus_output or {}).get("agreement_matrix")
+    if matrix_data:
+        agreement_matrix = schemas.AgreementMatrix(
+            models=matrix_data.get("models", []),
+            claims=matrix_data.get("claims", []),
+            agreement_scores=matrix_data.get("agreement_scores", []),
         )
-    )
-    model_names = [m for m in models_result.scalars().all()]
-    
-    # Build agreement matrix (simplified)
-    agreement_matrix = schemas.AgreementMatrix(
-        models=model_names,
-        claims=[c.normalized_text[:50] for c in claims],
-        agreement_scores=[[c.agreement_ratio or 0 for c in claims]]
-    )
+    else:
+        models_result = await db.execute(
+            select(models.ModelOutput.model_name).where(
+                models.ModelOutput.case_id == case_id,
+                models.ModelOutput.status == "success"
+            )
+        )
+        model_names = [m for m in models_result.scalars().all()]
+        agreement_matrix = schemas.AgreementMatrix(
+            models=model_names,
+            claims=[c.normalized_text[:50] for c in claims],
+            agreement_scores=[],
+        )
     
     # Calculate overall confidence
     overall_confidence = case.confidence_score or 0.0

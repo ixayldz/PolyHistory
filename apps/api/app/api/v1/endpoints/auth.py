@@ -68,13 +68,13 @@ async def login(
 
 @router.post("/refresh", response_model=schemas.Token)
 async def refresh_token(
-    refresh_token: str,
+    refresh_request: schemas.RefreshTokenRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """Refresh access token."""
     from app.core.security import decode_token
     
-    payload = decode_token(refresh_token)
+    payload = decode_token(refresh_request.refresh_token)
     if not payload or payload.get("type") != "refresh":
         raise AuthenticationException("Invalid refresh token")
     

@@ -1,6 +1,6 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, List
 
 
 class Settings(BaseSettings):
@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     ALGORITHM: str = "HS256"
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
     
     # AI Model API Keys
     GEMINI_API_KEY: Optional[str] = None
@@ -43,10 +44,20 @@ class Settings(BaseSettings):
     # Balance Protocol
     MBR_PENALTY_PERCENTAGE: int = 20
     HIGH_RISK_CONFIDENCE_CAP: float = 0.6
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+
+    # Celery
+    CELERY_TASK_ALWAYS_EAGER: bool = False
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore",
+    )
+
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Parse CORS origins from comma-separated configuration."""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
 
 @lru_cache()

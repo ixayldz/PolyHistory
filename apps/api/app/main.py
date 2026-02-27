@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+import logging
 
 from app.core.config import get_settings
 from app.core.database import init_db, close_db
@@ -9,12 +10,15 @@ from app.core.exceptions import PolyHistoryException
 from app.api.v1 import router as api_v1_router
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     # Startup
+    if settings.SECRET_KEY == "supersecretkey":
+        logger.warning("SECURITY WARNING: SECRET_KEY is using the insecure default value.")
     await init_db()
     yield
     # Shutdown
@@ -31,7 +35,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure for production
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

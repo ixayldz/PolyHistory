@@ -7,7 +7,10 @@ import json
 import asyncio
 from typing import Dict, Any, List
 
-from openai import AsyncOpenAI
+try:
+    from openai import AsyncOpenAI
+except ImportError:  # pragma: no cover - optional dependency in local/offline mode
+    AsyncOpenAI = None
 
 from app.services.judge.base import BaseJudge, JudgeOutput, JudgeTimeoutError, JudgeParseError
 from app.core.config import get_settings
@@ -74,6 +77,8 @@ class GPTJudge(BaseJudge):
     def __init__(self, api_key: str = None):
         api_key = api_key or settings.OPENAI_API_KEY
         super().__init__(api_key, timeout=settings.MODEL_TIMEOUT_SECONDS)
+        if AsyncOpenAI is None:
+            raise RuntimeError("openai package is not installed")
         self.client = AsyncOpenAI(api_key=api_key)
     
     async def analyze(

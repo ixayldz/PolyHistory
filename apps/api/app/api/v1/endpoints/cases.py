@@ -6,7 +6,7 @@ from sqlalchemy import select, desc, func
 from app.api.deps import get_db, get_current_active_user, check_analysis_limit
 from app.core.exceptions import NotFoundException
 from app import schemas, models
-from app.tasks.case_workflow import process_case_workflow
+from app.tasks.case_workflow import enqueue_case_workflow
 
 router = APIRouter()
 
@@ -36,7 +36,7 @@ async def create_case(
     await db.refresh(case)
     
     # Trigger background processing
-    process_case_workflow.delay(str(case.id))
+    enqueue_case_workflow(str(case.id), case_in.model_dump(mode="json"))
     
     return case
 

@@ -10,9 +10,6 @@ from dataclasses import dataclass
 from app.core.config import get_settings
 from app.core.exceptions import InsufficientConsensusException
 from app.services.judge.base import BaseJudge, JudgeOutput, JudgeTimeoutError, JudgeParseError
-from app.services.judge.gemini import GeminiJudge
-from app.services.judge.gpt import GPTJudge
-from app.services.judge.claude import ClaudeJudge
 
 settings = get_settings()
 
@@ -32,14 +29,27 @@ class JudgeOrchestrator:
     def __init__(self):
         """Initialize judges."""
         self.judges: Dict[str, BaseJudge] = {}
-        
-        # Initialize available judges
+
         if settings.GEMINI_API_KEY:
-            self.judges['gemini'] = GeminiJudge()
+            try:
+                from app.services.judge.gemini import GeminiJudge
+                self.judges["gemini"] = GeminiJudge()
+            except Exception:
+                pass
+
         if settings.OPENAI_API_KEY:
-            self.judges['gpt'] = GPTJudge()
+            try:
+                from app.services.judge.gpt import GPTJudge
+                self.judges["gpt"] = GPTJudge()
+            except Exception:
+                pass
+
         if settings.ANTHROPIC_API_KEY:
-            self.judges['claude'] = ClaudeJudge()
+            try:
+                from app.services.judge.claude import ClaudeJudge
+                self.judges["claude"] = ClaudeJudge()
+            except Exception:
+                pass
     
     async def run_parallel_analysis(
         self,
@@ -119,9 +129,13 @@ class JudgeOrchestrator:
         evidence_pack: List[Dict[str, Any]]
     ) -> JudgeOutput:
         """Run a single judge with timeout handling."""
+        timeout = getattr(judge, "timeout", settings.MODEL_TIMEOUT_SECONDS)
+        if not isinstance(timeout, (int, float)):
+            timeout = settings.MODEL_TIMEOUT_SECONDS
+
         return await asyncio.wait_for(
             judge.analyze(case_id, proposition, definitions, evidence_pack),
-            timeout=judge.timeout
+            timeout=timeout
         )
     
     def get_available_judges(self) -> List[str]:

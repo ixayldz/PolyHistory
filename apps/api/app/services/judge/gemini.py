@@ -7,7 +7,10 @@ import json
 import asyncio
 from typing import Dict, Any, List
 
-import google.generativeai as genai
+try:
+    import google.generativeai as genai
+except ImportError:  # pragma: no cover - optional dependency in local/offline mode
+    genai = None
 
 from app.services.judge.base import BaseJudge, JudgeOutput, JudgeTimeoutError, JudgeParseError
 from app.core.config import get_settings
@@ -70,7 +73,9 @@ class GeminiJudge(BaseJudge):
     def __init__(self, api_key: str = None):
         api_key = api_key or settings.GEMINI_API_KEY
         super().__init__(api_key, timeout=settings.MODEL_TIMEOUT_SECONDS)
-        
+        if genai is None:
+            raise RuntimeError("google-generativeai package is not installed")
+
         genai.configure(api_key=api_key)
         # Gemini 3.1 Pro Preview - Latest model with enhanced capabilities
         self.model = genai.GenerativeModel(

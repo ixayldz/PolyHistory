@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.api.deps import get_db, get_current_active_user
@@ -41,10 +41,10 @@ async def export_case(
         media_type = "application/json"
         filename = f"case_{case_id}.json"
     else:
-        # PDF would require additional library like reportlab or weasyprint
-        content = "PDF export not yet implemented"
-        media_type = "text/plain"
-        filename = f"case_{case_id}.txt"
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="PDF export is not implemented yet"
+        )
     
     return Response(
         content=content,
