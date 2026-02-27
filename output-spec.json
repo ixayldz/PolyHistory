@@ -1,0 +1,89 @@
+{
+  "case_id": "string",
+  "query": {
+    "original_text": "string",
+    "normalized_proposition": "string",
+    "time_window": {
+      "start": "YYYY-MM-DD",
+      "end": "YYYY-MM-DD"
+    },
+    "claim_type": "diplomatic|economic|military|intelligence|propaganda"
+  },
+  "definitions": {
+    "ambiguous_terms": [
+      {
+        "term": "string",
+        "operational_definition": "string"
+      }
+    ]
+  },
+  "summary": {
+    "short_verdict": "string",
+    "confidence_score": 0,
+    "confidence_label": "low|medium|high"
+  },
+  "timeline": [
+    {
+      "date": "YYYY-MM-DD",
+      "event": "string",
+      "sources": ["evidence_id"]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "string",
+      "normalized_text": "string",
+      "category": "diplomatic|economic|military|intelligence|propaganda",
+      "stance": "support|oppose|neutral",
+      "agreement_score": 0.0,
+      "evidence_refs": [
+        {
+          "evidence_id": "string",
+          "snippet_id": "string",
+          "reliability_score": 0.0
+        }
+      ]
+    }
+  ],
+  "disagreements": [
+    {
+      "claim_id": "string",
+      "reason": "definition_difference|evidence_weight|time_scope|translation_issue",
+      "model_positions": {
+        "gemini": "support|oppose|neutral",
+        "gpt": "support|oppose|neutral",
+        "claude": "support|oppose|neutral"
+      }
+    }
+  ],
+  "evidence_ledger": [
+    {
+      "evidence_id": "string",
+      "title": "string",
+      "author": "string",
+      "date": "YYYY",
+      "country": "string",
+      "language": "string",
+      "type": "primary|secondary|press|memoir",
+      "reliability_score": 0.0,
+      "snippets": [
+        {
+          "snippet_id": "string",
+          "text": "string",
+          "location": "page/paragraph/url",
+          "quote_confidence": 0.0
+        }
+      ]
+    }
+  ],
+  "uncertainties": [
+    "string"
+  ],
+  "bibliography_by_cluster": {
+    "turkey_primary": [],
+    "turkey_secondary": [],
+    "foreign_press": [],
+    "foreign_official": [],
+    "academic": []
+  }
+}
