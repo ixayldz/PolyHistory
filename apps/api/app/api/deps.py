@@ -50,8 +50,33 @@ async def get_current_active_user(
 async def check_analysis_limit(
     current_user: models.User = Depends(get_current_active_user)
 ) -> models.User:
-    """Check if user has remaining analysis quota."""
-    if current_user.tier == 'free' and current_user.monthly_analysis_count >= current_user.monthly_analysis_limit:
-        from app.core.exceptions import InsufficientBalanceException
-        raise InsufficientBalanceException(current_user.monthly_analysis_limit)
+    """Check analysis quota and determine analysis mode (PRD v2.0 Free Tier).
+    
+    Free tier: 1 multi-model + 4 single-model per month.
+    Sets current_user._analysis_mode for downstream use.
+    """
+    from app.core.config import get_settings
+    from app.core.exceptions import InsufficientBalanceException
+    
+    settings = get_settings()
+    total_limit = current_user.monthly_analysis_limit
+    
+    if current_user.tier == 'free':
+        multi_limit = settings.FREE_TIER_MULTI_MODEL_LIMIT
+        single_limit = settings.FREE_TIER_SINGLE_MODEL_LIMIT
+        total_free = multi_limit + single_limit
+        
+        if current_user.monthly_analysis_count >= total_free:
+            raise InsufficientBalanceException(total_free)
+        
+        # First N analyses are multi-model, rest are single-model
+        if current_user.monthly_analysis_count < multi_limit:
+            current_user._analysis_mode = "multi_model"
+        else:
+            current_user._analysis_mode = "single_model"
+    else:
+        if current_user.monthly_analysis_count >= total_limit:
+            raise InsufficientBalanceException(total_limit)
+        current_user._analysis_mode = "multi_model"
+    
     return current_user

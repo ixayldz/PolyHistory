@@ -193,8 +193,8 @@ class TestEvidenceBuilder:
         
         # Primary source should have higher score
         assert scored[0].reliability_score > scored[1].reliability_score
-        assert scored[0].reliability_factors["type_weight"] == 1.0
-        assert scored[1].reliability_factors["type_weight"] == 0.4
+        assert scored[0].reliability_factors["source_type_score"] == 1.0
+        assert scored[1].reliability_factors["source_type_score"] == 0.4
     
     def test_get_institution_type(self, builder):
         """Test institution type detection."""

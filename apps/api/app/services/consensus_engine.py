@@ -234,11 +234,16 @@ class ConsensusEngine:
         # Compute agreement ratio
         agreement_ratio = len(supporting_models) / len(all_model_names) if all_model_names else 0
         
-        # Calculate final score
-        final_score = agreement_ratio * evidence_strength
+        # Calculate final score (PRD v2.0: weighted average)
+        final_score = (
+            settings.CONSENSUS_AGREEMENT_WEIGHT * agreement_ratio +
+            settings.CONSENSUS_EVIDENCE_WEIGHT * evidence_strength
+        )
         
-        # Determine confidence label
-        if final_score >= 0.61:
+        # Determine confidence label (PRD v2.0: 4 tiers)
+        if final_score >= 0.86:
+            confidence_label = "very_high"
+        elif final_score >= 0.61:
             confidence_label = "high"
         elif final_score >= 0.31:
             confidence_label = "medium"
@@ -264,7 +269,7 @@ class ConsensusEngine:
             agreement_ratio=agreement_ratio,
             final_score=final_score,
             confidence_label=confidence_label,
-            is_core_consensus=(confidence_label == "high" and not is_disputed),
+            is_core_consensus=(confidence_label in ("high", "very_high") and not is_disputed),
             is_disputed=is_disputed,
             dispute_reasons=dispute_reasons,
             supporting_models=supporting_models

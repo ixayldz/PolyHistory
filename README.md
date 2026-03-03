@@ -1,326 +1,135 @@
 <p align="center">
-  <img src="https://via.placeholder.com/200x200?text=PolyHistory" alt="PolyHistory Logo" width="200" height="200">
+  <img src="https://img.shields.io/badge/v2.0.0-release-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js">
+  <img src="https://img.shields.io/badge/FastAPI-0.115-00a393?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Tests-74%20passed-brightgreen?style=for-the-badge" alt="Tests">
 </p>
 
-<h1 align="center">PolyHistory</h1>
+<h1 align="center">📜 PolyHistory</h1>
 
 <p align="center">
   <strong>Evidence-First Multi-Perspective Historical Analysis Platform</strong>
 </p>
 
 <p align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="#-features">Features</a> •
-  <a href="#-architecture">Architecture</a> •
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-api-documentation">API</a> •
-  <a href="#-contributing">Contributing</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-blue.svg?logo=python&logoColor=white" alt="Python 3.11+">
-  <img src="https://img.shields.io/badge/FastAPI-0.115+-00a393.svg?logo=fastapi&logoColor=white" alt="FastAPI">
-  <img src="https://img.shields.io/badge/Next.js-14+-000000.svg?logo=next.js&logoColor=white" alt="Next.js 14">
-  <img src="https://img.shields.io/badge/PostgreSQL-16+-336791.svg?logo=postgresql&logoColor=white" alt="PostgreSQL 16">
-  <img src="https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT">
+  <em>"Aynı tarih aralığında, farklı ülkelerin ve farklı görüşlerin ne dediğini önce göster; sonra kanıt hiyerarşisine göre, denetlenebilir bir çıkarım üret."</em>
 </p>
 
 ---
 
-## 📖 Overview
+## 🎯 What is PolyHistory?
 
-**PolyHistory** is an AI-powered historical research platform that eliminates ideological echo chambers by enforcing strict **evidence-first** principles and **multi-perspective** analysis.
+PolyHistory is an AI-powered historical research platform that breaks ideological echo chambers by enforcing **strict source diversity**, **hierarchical evidence weighting**, and **multi-model AI consensus**. It analyzes historical claims across national boundaries, languages, and perspectives — then produces transparent, auditable verdicts.
 
-### 🎯 Core Philosophy
-
-> **"No Citation, No Claim"** — Every assertion must be backed by verifiable evidence from diverse sources.
-
-### 🌍 Why PolyHistory?
-
-Traditional historical research often suffers from:
-- **Single-perspective bias** — Limited to one nation's narrative
-- **Source conflation** — No distinction between primary archives and press discourse
-- **Opaque reasoning** — Hidden biases and unverifiable claims
-
-PolyHistory solves these with:
-- ✅ **Multi-model consensus** — 3 independent AI judges analyze evidence
-- ✅ **Cross-national comparison** — Synchronized multi-language source retrieval
-- ✅ **Source hierarchy** — Primary > Academic > Secondary > Memoir > Press
-- ✅ **Full auditability** — Complete chain from query to conclusion
-
----
-
-## ✨ Features
-
-### 🔍 Evidence-First Architecture
+### Key Differentiators
 
 | Feature | Description |
 |---------|-------------|
-| **Strict Citation Requirement** | Every claim must reference specific evidence |
-| **Source Reliability Scoring** | Multi-factor scoring (type, institution, consistency) |
-| **Semantic Search** | Vector embeddings for relevant evidence retrieval |
-| **Complete Audit Trail** | Immutable case files with deterministic replay |
-
-### 🧠 Multi-Model Consensus
-
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Gemini     │    │    GPT-5.2   │    │    Claude    │
-│  3.1 Pro     │    │   (OpenAI)   │    │ Opus 4.6     │
-└──────┬───────┘    └──────┬───────┘    └──────┬───────┘
-       │                   │                   │
-       └───────────────────┼───────────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │  Consensus  │
-                    │   Engine    │
-                    └──────┬──────┘
-                           │
-                    ┌──────▼──────┐
-                    │    Final    │
-                    │   Verdict   │
-                    └─────────────┘
-```
-
-**Algorithm:**
-```
-Final_Score = Agreement_Ratio × Evidence_Strength
-
-Agreement_Ratio = Supporting_Models / Total_Models
-Evidence_Strength = Σ(Source_Type_Weight × Reliability)
-```
-
-### ⚖️ Balance Protocol (MBR)
-
-Every analysis must satisfy **Minimum Balance Requirements**:
-
-| Requirement | Minimum | Purpose |
-|-------------|---------|---------|
-| Turkish Sources | ≥ 2 (pro + contra) | Local perspective diversity |
-| Foreign Countries | ≥ 2 | Cross-national validation |
-| Press Sources | ≥ 1 per cluster | Discourse evidence |
-| Primary/Academic | ≥ 1 per cluster | Authoritative evidence |
-
-### 🌐 Multi-Lingual Support
-
-- 🇹🇷 **Turkish (TR)** — Ottoman/Turkish Republic archives
-- 🇬🇧 **English (EN)** — British/American diplomatic records
-- 🇫🇷 **French (FR)** — European diplomatic correspondence
-- 🇬🇷 **Greek (EL)** — Balkan/Mediterranean sources
-
-**Period Terminology Mapping:**
-```
-"Angora Government" ↔ "Ankara Government"
-"Mustafa Kemal" ↔ "Kemal Pasha" ↔ "Atatürk"
-```
+| 🔬 **Evidence-First** | No claim without citation — every assertion traces back to verifiable sources |
+| 🤖 **Multi-Model Consensus** | Three independent AI judges (Gemini, GPT, Claude) with weighted agreement scoring |
+| ⚖️ **Minimum Balance Requirements** | Mandatory source diversity across perspectives, geographies, and languages |
+| 🌍 **Cross-National Analysis** | Same-time-window discourse mapping across Turkish, English, French, and Greek sources |
+| 📋 **Full Auditability** | Complete case files with deterministic replay capability |
+| 🛡️ **Graceful Degradation** | 4-tier reliability system when AI models are unavailable |
 
 ---
 
 ## 🏗️ Architecture
 
-### System Overview
-
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Client (Next.js)                        │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │ HTTP/WebSocket
-┌─────────────────────────────▼───────────────────────────────────┐
-│                      API Gateway (FastAPI)                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
-│  │    Auth     │  │    Cases    │  │    Evidence/Timeline    │  │
-│  │  (JWT)      │  │   (CRUD)    │  │      (Analysis)         │  │
-│  └─────────────┘  └──────┬──────┘  └─────────────────────────┘  │
-└──────────────────────────┼──────────────────────────────────────┘
-                           │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-┌───────▼──────┐  ┌────────▼────────┐  ┌──────▼───────┐
-│   Celery     │  │   Proposition   │  │   Evidence   │
-│   Workers    │  │     Parser      │  │    Builder   │
-└──────────────┘  └─────────────────┘  └──────────────┘
-        │                  │                  │
-        │         ┌────────▼────────┐         │
-        │         │  Judge Panel    │         │
-        │         │ ┌─────┬─────┐   │         │
-        │         │ │Gemini│ GPT │   │         │
-        │         │ │ 3.1  │ 5.2 │   │         │
-        │         │ └─────┴─────┘   │         │
-        │         │     Claude      │         │
-        │         │    Opus 4.6     │         │
-        │         └─────────────────┘         │
-        │                  │                  │
-┌───────▼──────────────────▼──────────────────▼───────┐
-│              PostgreSQL + pgvector                 │
-│  (Users, Cases, Evidence, Claims, Embeddings)      │
-└─────────────────────────────────────────────────────┘
+                    ┌──────────────────────────────────────────┐
+                    │          Next.js Frontend (Web)           │
+                    │   Dashboard · Cases · Evidence · Export   │
+                    └──────────────────┬───────────────────────┘
+                                       │ REST API
+                    ┌──────────────────▼───────────────────────┐
+                    │          FastAPI Backend (API)            │
+                    └──────────────────┬───────────────────────┘
+                                       │
+           ┌───────────────┬───────────┼───────────┬───────────────┐
+           │               │           │           │               │
+    ┌──────▼──────┐ ┌──────▼──────┐ ┌──▼───┐ ┌────▼─────┐ ┌──────▼──────┐
+    │ Proposition │ │   Query     │ │Judge │ │ Balance  │ │  Consensus  │
+    │   Parser    │ │  Expansion  │ │Panel │ │ Protocol │ │   Engine    │
+    │  (NLP/NER)  │ │ (4 langs)   │ │      │ │  (MBR)   │ │(0.4A+0.6E)  │
+    └─────────────┘ └─────────────┘ └──┬───┘ └──────────┘ └─────────────┘
+                                       │
+                              ┌────────┼────────┐
+                              │        │        │
+                        ┌─────▼───┐ ┌──▼───┐ ┌──▼─────┐
+                        │ Gemini  │ │ GPT  │ │ Claude │
+                        │ 3.1 Pro │ │ 5.2  │ │Opus 4.6│
+                        └─────┬───┘ └──┬───┘ └──┬─────┘
+                              │        │        │
+                              └────────┼────────┘
+                                       │
+                        ┌──────────────▼──────────────┐
+                        │     Graceful Degradation     │
+                        │  FULL → PARTIAL → REDUCED →  │
+                        │         FALLBACK             │
+                        └──────────────────────────────┘
+                                       │
+         ┌─────────────────────────────┼─────────────────────────────┐
+         │                             │                             │
+  ┌──────▼──────┐              ┌───────▼───────┐            ┌───────▼───────┐
+  │ PostgreSQL  │              │    Redis      │            │    Celery     │
+  │ + pgvector  │              │  Cache/Queue  │            │   Workers    │
+  └─────────────┘              └───────────────┘            └───────────────┘
 ```
 
-### Technology Stack
+### Analysis Pipeline
 
-#### Backend
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Framework** | FastAPI 0.115+ | Async Python API |
-| **Database** | PostgreSQL 16 + pgvector | Vector similarity search |
-| **Cache** | Redis 7 | Session & task queue |
-| **Tasks** | Celery 5 | Background processing |
-| **ORM** | SQLAlchemy 2.0 | Database abstraction |
-| **Validation** | Pydantic V2 | Request/response schemas |
-| **AI Models** | Gemini 3.1, GPT-5.2, Claude Opus 4.6 | Analysis judges |
-| **Embeddings** | sentence-transformers | Semantic search |
-| **Testing** | pytest + pytest-asyncio | Unit & integration tests |
+```mermaid
+graph LR
+    A[User Query] --> B[Proposition Parser]
+    B --> C[Query Expansion<br/>TR/EN/FR/EL]
+    C --> D[Evidence Builder<br/>5 Collectors]
+    D --> E[Balance Protocol<br/>Adaptive MBR]
+    E --> F[Judge Panel<br/>3 AI Models]
+    F --> G[Consensus Engine<br/>0.4A + 0.6E]
+    G --> H[Report Generator<br/>MD/JSON Export]
+```
 
-#### Frontend
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Framework** | Next.js 14 (App Router) | React framework |
-| **Language** | TypeScript 5.3 | Type safety |
+---
+
+## 🛠️ Tech Stack
+
+### Backend (`apps/api`)
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Framework** | FastAPI 0.115 | Async REST API with auto-docs |
+| **Language** | Python 3.12 | Core logic |
+| **Database** | PostgreSQL 16 + pgvector | Data persistence + vector similarity |
+| **ORM** | SQLAlchemy 2.0 (async) | Database models |
+| **Cache/Queue** | Redis 7.2 | Caching + Celery broker |
+| **Task Queue** | Celery 5.3 | Background workflow processing |
+| **Auth** | JWT (python-jose) + bcrypt | Token-based authentication |
+| **AI Models** | Gemini 3.1 Pro, GPT-5.2, Claude Opus 4.6 | Multi-model judge panel |
+| **Testing** | pytest + pytest-asyncio | Unit & integration testing |
+
+### Frontend (`apps/web`)
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Framework** | Next.js 14 | React SSR framework |
+| **Language** | TypeScript 5.3 | Type-safe frontend |
+| **State** | Zustand + React Query | Client state + server state |
+| **Charts** | Recharts + D3.js | Data visualization |
+| **Forms** | React Hook Form + Zod | Validated form handling |
 | **Styling** | Tailwind CSS 3.4 | Utility-first CSS |
-| **State** | Zustand + React Query | Client & server state |
-| **UI** | shadcn/ui | Accessible components |
-| **Viz** | D3.js + Recharts | Timeline & charts |
+| **HTTP** | Axios | API client |
+| **Testing** | Jest + Testing Library | Component testing |
 
----
+### Infrastructure
 
-## 🚀 Quick Start
-
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) 24.0+
-- [Docker Compose](https://docs.docker.com/compose/install/) 2.20+
-- [Node.js](https://nodejs.org/) 20+ (for frontend development)
-
-### 1. Clone Repository
-
-```bash
-git clone https://github.com/your-org/polyhistory.git
-cd polyhistory
-```
-
-### 2. Configure Environment
-
-```bash
-# Copy example configuration
-cp .env.example .env
-
-# Edit with your API keys
-nano .env
-```
-
-**Required API Keys:**
-- [Google AI (Gemini)](https://makersuite.google.com/app/apikey)
-- [OpenAI (GPT-5.2)](https://platform.openai.com/api-keys)
-- [Anthropic (Claude)](https://console.anthropic.com/settings/keys)
-
-### 3. Start Backend Services
-
-```bash
-docker-compose up -d
-```
-
-Services started:
-- API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
-- PostgreSQL: localhost:5432
-- Redis: localhost:6379
-
-### 4. Start Frontend (Optional)
-
-```bash
-cd apps/web
-npm install
-npm run dev
-```
-
-Frontend: http://localhost:3000
-
----
-
-## 📚 API Documentation
-
-### Authentication
-
-```bash
-# Register
-curl -X POST http://localhost:8000/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "securepass123"}'
-
-# Login
-curl -X POST http://localhost:8000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "securepass123"}'
-```
-
-### Create Analysis
-
-```bash
-curl -X POST http://localhost:8000/api/v1/cases \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "proposition": "Mustafa Kemal Atatürk İngilizlerle iş yaptı mı?",
-    "time_window": {
-      "start": "1919-05-01",
-      "end": "1923-10-29"
-    },
-    "options": {
-      "require_steel_man": true,
-      "languages": ["tr", "en"]
-    }
-  }'
-```
-
-### Get Results
-
-```bash
-# Get case details
-curl http://localhost:8000/api/v1/cases/{case_id} \
-  -H "Authorization: Bearer YOUR_TOKEN"
-
-# Get evidence pack
-curl http://localhost:8000/api/v1/cases/{case_id}/evidence \
-  -H "Authorization: Bearer YOUR_TOKEN"
-
-# Get consensus analysis
-curl http://localhost:8000/api/v1/cases/{case_id}/consensus \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-**Full API Reference:** http://localhost:8000/docs
-
----
-
-## 🧪 Testing
-
-### Backend Tests
-
-```bash
-# Run all tests
-docker-compose exec api pytest
-
-# With coverage report
-docker-compose exec api pytest --cov=app --cov-report=html
-
-# Specific test categories
-docker-compose exec api pytest tests/unit/ -v
-docker-compose exec api pytest tests/integration/ -v
-
-# Specific test file
-docker-compose exec api pytest tests/unit/test_ai_integration.py -v
-```
-
-### Test Coverage
-
-| Category | Tests | Coverage |
-|----------|-------|----------|
-| Authentication | 9 | ✅ Complete |
-| Case Management | 10 | ✅ Complete |
-| AI Integration | 30+ | ✅ Complete |
-| Retrieval Services | 20+ | ✅ Complete |
-| **Total** | **80+** | **~85%** |
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Containers** | Docker + Docker Compose | Orchestration |
+| **Database** | PostgreSQL 16 | Primary datastore |
+| **Cache** | Redis 7.2 | Session cache + task broker |
 
 ---
 
@@ -328,157 +137,470 @@ docker-compose exec api pytest tests/unit/test_ai_integration.py -v
 
 ```
 polyhistory/
-├── 📄 README.md                    # This file
-├── 📄 prd.md                       # Product Requirements Document
-├── 📄 implementation-plan.md       # Technical implementation guide
-├── 📄 .env.example                 # Environment configuration template
-├── 🐳 docker-compose.yml           # Development orchestration
+├── 📄 docker-compose.yml          # Full-stack orchestration
+├── 📄 prd.md                      # Product Requirements (v2.0)
+├── 📄 output-spec.json            # API response schema
+├── 📄 README.md                   # ← You are here
 │
-├── apps/
-│   ├── api/                        # 🐍 FastAPI Backend
-│   │   ├── app/
-│   │   │   ├── main.py             # Application entry
-│   │   │   ├── core/               # Config, database, security
-│   │   │   ├── models/             # SQLAlchemy ORM models
-│   │   │   ├── schemas/            # Pydantic validation schemas
-│   │   │   ├── api/v1/endpoints/   # REST API routes
-│   │   │   ├── services/           # Business logic
-│   │   │   │   ├── judge/          # 🤖 AI model adapters
-│   │   │   │   │   ├── base.py     # Abstract base class
-│   │   │   │   │   ├── gemini.py   # Google Gemini 3.1 Pro
-│   │   │   │   │   ├── gpt.py      # OpenAI GPT-5.2
-│   │   │   │   │   ├── claude.py   # Anthropic Claude Opus 4.6
-│   │   │   │   │   └── orchestrator.py
-│   │   │   │   ├── proposition_parser.py
-│   │   │   │   ├── query_expansion.py
-│   │   │   │   ├── evidence_builder.py
-│   │   │   │   ├── balance_protocol.py
-│   │   │   │   └── consensus_engine.py
-│   │   │   └── tasks/              # Celery background tasks
-│   │   ├── tests/                  # 🧪 Test suite
-│   │   │   ├── unit/
-│   │   │   └── integration/
-│   │   └── Dockerfile
-│   │
-│   └── web/                        # ⚛️ Next.js Frontend
-│       ├── app/                    # App Router (Next.js 14)
-│       ├── components/
-│       ├── lib/
-│       └── package.json
+├── 🔧 apps/api/                   # Python Backend
+│   ├── app/
+│   │   ├── main.py                # FastAPI app + lifespan
+│   │   ├── core/                  # Infrastructure
+│   │   │   ├── config.py          # Settings (v2.0.0)
+│   │   │   ├── database.py        # Async SQLAlchemy + pgvector
+│   │   │   ├── security.py        # JWT + bcrypt
+│   │   │   └── exceptions.py      # Custom exceptions
+│   │   ├── models/                # 7 SQLAlchemy tables
+│   │   │   └── __init__.py        # User, Case, Evidence, Claim, etc.
+│   │   ├── schemas/               # Pydantic request/response models
+│   │   ├── api/v1/                # REST endpoints
+│   │   │   ├── deps.py            # Auth deps + Free Tier logic
+│   │   │   └── endpoints/         # auth, cases, evidence, timeline, consensus, export
+│   │   ├── services/              # Business logic
+│   │   │   ├── proposition_parser.py    # NLP/NER claim parsing
+│   │   │   ├── query_expansion.py       # 4-language query expansion
+│   │   │   ├── evidence_builder.py      # 5-factor reliability scoring
+│   │   │   ├── balance_protocol.py      # Adaptive MBR enforcement
+│   │   │   ├── consensus_engine.py      # Weighted consensus (0.4A + 0.6E)
+│   │   │   ├── report_generator.py      # Markdown/JSON export
+│   │   │   └── judge/                   # AI model adapters
+│   │   │       ├── base.py              # Abstract BaseJudge
+│   │   │       ├── gemini.py            # Gemini 3.1 Pro adapter
+│   │   │       ├── gpt.py              # GPT-5.2 adapter
+│   │   │       ├── claude.py            # Claude Opus 4.6 adapter
+│   │   │       └── orchestrator.py      # Parallel execution + degradation
+│   │   └── tasks/
+│   │       └── case_workflow.py         # Full analysis pipeline
+│   ├── tests/                     # 74 passing tests
+│   │   ├── conftest.py
+│   │   ├── unit/                  # 5 test files
+│   │   └── integration/           # 2 test files
+│   ├── requirements.txt
+│   └── Dockerfile
 │
-└── packages/                       # 📦 Shared packages (future)
+└── 🌐 apps/web/                   # Next.js Frontend
+    ├── app/                       # Pages (App Router)
+    │   ├── page.tsx               # Dashboard
+    │   ├── auth/                  # Login/Register
+    │   └── cases/                 # Case detail/list
+    ├── components/                # UI components
+    ├── lib/                       # API client + utilities
+    ├── hooks/                     # Custom React hooks
+    ├── stores/                    # Zustand state stores
+    ├── types/                     # TypeScript type definitions
+    └── package.json
 ```
 
 ---
 
-## 🔬 How It Works
+## 🚀 Quick Start
 
-### 1. Proposition Parsing
+### Prerequisites
 
-```python
-# Input
-"Mustafa Kemal Atatürk İngilizlerle iş yaptı mı?"
+- **Docker** 24.0+ & **Docker Compose** 2.20+
+- AI model API keys (optional — deterministic fallback exists)
 
-# Output
-{
-  "entities": ["Mustafa Kemal", "İngiltere"],
-  "time_window": {"start": "1919-05-01", "end": "1923-10-29"},
-  "geography": ["Turkey", "UK"],
-  "claim_type": "diplomatic"
-}
+### 1. Clone & Configure
+
+```bash
+git clone https://github.com/your-org/polyhistory.git
+cd polyhistory
+
+# Create environment file
+cp .env.example .env
+
+# Add your API keys (optional)
+# GEMINI_API_KEY=your-key
+# OPENAI_API_KEY=sk-your-key
+# ANTHROPIC_API_KEY=sk-ant-your-key
 ```
 
-### 2. Evidence Retrieval
+### 2. Start All Services
 
-Multi-source parallel collection:
-- 📚 Academic databases (Semantic Scholar)
-- 📰 Period press archives
-- 📜 National archives (Turkish, British, French)
-- 📄 Treaty/official document indices
+```bash
+docker-compose up -d
 
-### 3. Multi-Model Analysis
-
-Each AI judge analyzes independently:
-
-| Judge | Specialty |
-|-------|-----------|
-| **Gemini 3.1 Pro** | Broad context synthesis, multilingual |
-| **GPT-5.2** | Claim decomposition, consistency checking |
-| **Claude Opus 4.6** | Steel-man argumentation, nuanced interpretation |
-
-### 4. Consensus Computation
-
-```python
-# Example calculation
-Evidence_Strength = (1.0 × 0.9) + (0.4 × 0.7) = 1.18
-Agreement_Ratio = 2/3 = 0.67
-Final_Score = 0.67 × 1.18 = 0.79  # High confidence
+# Verify everything is running
+docker-compose ps
 ```
 
-### 5. Output Generation
+### 3. Access the Application
 
-```json
-{
-  "verdict": {
-    "short_statement": "Evidence supports limited diplomatic contact...",
-    "confidence_score": 79
-  },
-  "core_claims": [...],
-  "disputed_claims": [...],
-  "evidence_ledger": [...],
-  "timeline": [...]
-}
+| Service | URL | Description |
+|---------|-----|-------------|
+| 🌐 **Web App** | http://localhost:3000 | Next.js frontend |
+| 📡 **API** | http://localhost:8000 | FastAPI backend |
+| 📖 **API Docs** | http://localhost:8000/docs | Swagger UI |
+| 📋 **ReDoc** | http://localhost:8000/redoc | Alternative API docs |
+| ❤️ **Health** | http://localhost:8000/health | Health check |
+
+### 4. Create Your First Analysis
+
+```bash
+# 1. Register
+curl -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "securepass123"}'
+
+# 2. Login
+TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "securepass123"}' | \
+  python -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+
+# 3. Submit a historical proposition
+curl -X POST http://localhost:8000/api/v1/cases \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "proposition": "Mustafa Kemal Atatürk İngilizlerle gizli bir işbirliği yaptı mı?",
+    "time_window": {"start": "1919-05-01", "end": "1923-10-29"},
+    "geography": ["Turkey", "UK"],
+    "options": {
+      "require_steel_man": true,
+      "source_preference": "balanced",
+      "languages": ["tr", "en"]
+    }
+  }'
 ```
 
 ---
 
-## 🤝 Contributing
+## ⚙️ Configuration
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+### Environment Variables
 
-### Development Workflow
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `DATABASE_URL` | ✅ | — | PostgreSQL connection string |
+| `REDIS_URL` | ✅ | — | Redis connection string |
+| `SECRET_KEY` | ✅ | — | JWT signing key |
+| `GEMINI_API_KEY` | ❌ | — | Google AI API key |
+| `OPENAI_API_KEY` | ❌ | — | OpenAI API key |
+| `ANTHROPIC_API_KEY` | ❌ | — | Anthropic API key |
+| `MODEL_TIMEOUT_SECONDS` | ❌ | `30` | AI model response timeout |
+| `MBR_PENALTY_PERCENTAGE` | ❌ | `20` | Confidence penalty for MBR violation |
+| `HIGH_RISK_CONFIDENCE_CAP` | ❌ | `0.6` | Max confidence for high-risk claims |
+| `CONSENSUS_AGREEMENT_WEIGHT` | ❌ | `0.4` | Agreement component weight |
+| `CONSENSUS_EVIDENCE_WEIGHT` | ❌ | `0.6` | Evidence component weight |
+| `FREE_TIER_MULTI_MODEL_LIMIT` | ❌ | `1` | Multi-model analyses per month (free) |
+| `FREE_TIER_SINGLE_MODEL_LIMIT` | ❌ | `4` | Single-model analyses per month (free) |
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+### Getting API Keys
 
-### Code Standards
+| Model | Provider | Sign Up | Free Tier |
+|-------|----------|---------|-----------|
+| Gemini 3.1 Pro | Google AI | [ai.google.dev](https://ai.google.dev) | 60 req/min |
+| GPT-5.2 | OpenAI | [platform.openai.com](https://platform.openai.com) | Pay-per-use |
+| Claude Opus 4.6 | Anthropic | [console.anthropic.com](https://console.anthropic.com) | Pay-per-use |
 
-- **Python:** PEP 8, type hints required
-- **TypeScript:** Strict mode enabled
-- **Tests:** Minimum 80% coverage for new code
-- **Documentation:** Update README for API changes
+> **Note:** PolyHistory works without any API keys using its deterministic fallback mode. API keys unlock the full multi-model consensus analysis.
+
+---
+
+## 🔌 API Reference
+
+### Authentication
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/auth/register` | Create account |
+| `POST` | `/api/v1/auth/login` | Login → JWT tokens |
+| `POST` | `/api/v1/auth/refresh` | Refresh access token |
+| `GET` | `/api/v1/auth/me` | Current user profile |
+
+### Case Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/cases` | Submit analysis (triggers background workflow) |
+| `GET` | `/api/v1/cases` | List analyses (paginated, filterable by status) |
+| `GET` | `/api/v1/cases/{id}` | Get case details with verdict |
+| `DELETE` | `/api/v1/cases/{id}` | Delete a case |
+
+### Analysis Results
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/cases/{id}/evidence` | Evidence pack (filterable by type/country/stance) |
+| `GET` | `/api/v1/cases/{id}/timeline` | Timeline events (day/week/month/year granularity) |
+| `GET` | `/api/v1/cases/{id}/consensus` | Consensus data + agreement matrix |
+| `POST` | `/api/v1/cases/{id}/export` | Export report (Markdown or JSON) |
+
+---
+
+## 🧠 Core Concepts
+
+### Reliability Scoring (5-Factor Formula)
+
+Every evidence item receives a reliability score computed as:
+
+```
+Reliability = 0.30 × Source_Type_Score
+            + 0.25 × Institution_Reputation
+            + 0.20 × Document_Quality
+            + 0.15 × Cross_Source_Consistency
+            + 0.10 × Citation_Count_Score
+```
+
+| Factor | Weight | Description |
+|--------|--------|-------------|
+| Source Type | 30% | Primary (1.0) → Academic (0.8) → Secondary (0.7) → Press (0.4) |
+| Institution | 25% | National archives (0.9) → University press (0.8) → Commercial (0.5) |
+| Document Quality | 20% | Born-digital = 1.0, OCR-based uses quality scores |
+| Cross-Source Consistency | 15% | Agreement ratio across sources with same stance |
+| Citation Impact | 10% | Estimated from source type and availability |
+
+### Consensus Formula
+
+```
+Final_Claim_Score = 0.4 × Agreement_Ratio + 0.6 × Evidence_Strength
+```
+
+| Label | Score Range | Meaning |
+|-------|------------|---------|
+| `very_high` | ≥ 0.86 | Strong consensus with robust evidence |
+| `high` | ≥ 0.61 | Solid consensus — core claim |
+| `medium` | ≥ 0.31 | Partial consensus — moderate confidence |
+| `low` | < 0.31 | Weak consensus or insufficient evidence |
+
+### Adaptive Minimum Balance Requirements (MBR)
+
+| Criterion | International Topics | Domestic Topics |
+|-----------|---------------------|-----------------|
+| Turkish sources | ≥ 2 | ≥ 2 |
+| Foreign countries | ≥ 2 | ≥ 1 |
+| Pro-stance sources | ≥ 1 | ≥ 1 |
+| Contra-stance sources | ≥ 1 | ≥ 1 |
+
+Non-compliance triggers a **20% confidence penalty** and suggests additional search terms.
+
+### Graceful Degradation
+
+| Level | Models OK | Confidence Cap | Behavior |
+|-------|-----------|---------------|----------|
+| `FULL` | 3/3 | 100% | Full multi-model consensus |
+| `PARTIAL` | 2/3 | 80% | Proceed with warning |
+| `REDUCED` | 1/3 | 50% | Single-model analysis |
+| `FALLBACK` | 0/3 | 40% | Local deterministic output |
+
+---
+
+## 🧪 Testing
+
+### Run Tests
+
+```bash
+# All unit tests
+docker-compose exec api pytest tests/unit/ -v
+
+# All tests with coverage
+docker-compose exec api pytest --cov=app --cov-report=term
+
+# Specific test suite
+docker-compose exec api pytest tests/unit/test_prd_v2_alignment.py -v
+
+# By marker
+docker-compose exec api pytest -m unit
+docker-compose exec api pytest -m integration
+```
+
+### Test Coverage
+
+| Module | Tests | Status |
+|--------|-------|--------|
+| AI Integration | 15 | ✅ |
+| Retrieval Services | 10 | ✅ |
+| PRD v2.0 Alignment | 17 | ✅ |
+| Schemas | 7 | ✅ |
+| Security | 6 | ✅ |
+| Auth (Integration) | — | ✅ |
+| Cases (Integration) | — | ✅ |
+| **Total** | **74** | **All passing** |
+
+---
+
+## 🛠️ Development
+
+### Local Setup (Without Docker)
+
+```bash
+# Backend
+cd apps/api
+python -m venv venv
+venv\Scripts\activate           # Linux/Mac: source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# Frontend
+cd apps/web
+npm install
+npm run dev                      # http://localhost:3000
+```
+
+### Adding a New AI Judge
+
+1. Create `apps/api/app/services/judge/your_model.py`:
+```python
+from app.services.judge.base import BaseJudge, JudgeOutput
+
+class YourModelJudge(BaseJudge):
+    async def analyze(self, case_id, proposition, definitions, evidence_pack):
+        # Call your model's API
+        ...
+        return self._validate_output(response)
+
+    def _build_prompt(self, proposition, definitions, evidence_pack):
+        return f"Analyze: {proposition}\nEvidence: {self._format_evidence_pack(evidence_pack)}"
+```
+
+2. Register in `orchestrator.py`:
+```python
+if settings.YOUR_MODEL_API_KEY:
+    from app.services.judge.your_model import YourModelJudge
+    self.judges["your_model"] = YourModelJudge()
+```
+
+3. Add API key to `config.py`:
+```python
+YOUR_MODEL_API_KEY: str = ""
+```
+
+### Free Tier Limits
+
+| Tier | Multi-Model Analyses | Single-Model Analyses | Total/Month |
+|------|--------------------|-----------------------|-------------|
+| **Free** | 1 | 4 | 5 |
+| **Pro** | Unlimited | — | Per plan |
+
+---
+
+## 📊 Database Schema
+
+```mermaid
+erDiagram
+    User ||--o{ Case : creates
+    User ||--o{ AuditLog : generates
+    Case ||--o{ EvidenceItem : contains
+    Case ||--o{ Claim : produces
+    Case ||--o{ ModelOutput : stores
+    Case ||--o{ AuditLog : tracks
+    EvidenceItem ||--o{ EvidenceSnippet : has
+
+    User {
+        uuid id PK
+        string email UK
+        string hashed_password
+        string tier
+        int monthly_analysis_count
+    }
+    Case {
+        uuid id PK
+        uuid user_id FK
+        string proposition
+        string status
+        float confidence_score
+        json consensus_output
+        string verdict_short
+    }
+    EvidenceItem {
+        uuid id PK
+        uuid case_id FK
+        string title
+        string source_type
+        string country
+        float reliability_score
+    }
+    Claim {
+        uuid id PK
+        uuid case_id FK
+        string normalized_text
+        string confidence_label
+        float final_score
+        bool is_core_consensus
+    }
+```
+
+---
+
+## 🐛 Troubleshooting
+
+<details>
+<summary><strong>Database connection failed</strong></summary>
+
+```bash
+# Check PostgreSQL status
+docker-compose ps db
+docker-compose logs db
+
+# Reset database
+docker-compose exec db psql -U postgres -c "DROP DATABASE IF EXISTS polyhistory;"
+docker-compose exec db psql -U postgres -c "CREATE DATABASE polyhistory;"
+docker-compose exec api alembic upgrade head
+```
+</details>
+
+<details>
+<summary><strong>AI model timeout / no response</strong></summary>
+
+```bash
+# Increase timeout (default: 30s)
+# In .env:
+MODEL_TIMEOUT_SECONDS=60
+
+# Check which models are available
+curl http://localhost:8000/health
+```
+
+The system automatically uses **graceful degradation** — if models fail, analysis continues with reduced confidence rather than failing entirely.
+</details>
+
+<details>
+<summary><strong>Redis connection refused</strong></summary>
+
+```bash
+# Check Redis
+docker-compose ps redis
+docker-compose logs redis
+
+# The API automatically falls back to local (non-Celery) task processing if Redis is unavailable
+```
+</details>
+
+<details>
+<summary><strong>Tests failing</strong></summary>
+
+```bash
+# Run only unit tests (no database required)
+docker-compose exec api pytest tests/unit/ -v
+
+# Reset test database for integration tests
+docker-compose exec db psql -U postgres -c "DROP DATABASE IF EXISTS test_polyhistory;"
+docker-compose exec db psql -U postgres -c "CREATE DATABASE test_polyhistory;"
+```
+</details>
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [PRD v2.0](prd.md) | Product Requirements Document |
+| [Output Spec](output-spec.json) | API response JSON schema |
+| [API Docs](http://localhost:8000/docs) | Interactive Swagger UI |
+| [API README](apps/api/README.md) | Backend-specific documentation |
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **FastAPI** team for the excellent web framework
-- **Sentence Transformers** for multilingual embeddings
-- **PostgreSQL** team for pgvector extension
-
----
-
-## 📞 Support
-
-- 📧 **Email:** support@polyhistory.app
-- 💬 **Discord:** [Join our community](https://discord.gg/polyhistory)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/your-org/polyhistory/issues)
+This project is proprietary software. All rights reserved.
 
 ---
 
 <p align="center">
-  <strong>PolyHistory</strong> — Making historical research transparent, unbiased, and verifiable.
-</p>
-
-<p align="center">
-  Built with ❤️ for historians, researchers, and truth-seekers everywhere.
+  Built with ❤️ using FastAPI, Next.js, PostgreSQL, and cutting-edge AI
+  <br>
+  <sub>Gemini 3.1 Pro · GPT-5.2 · Claude Opus 4.6</sub>
 </p>

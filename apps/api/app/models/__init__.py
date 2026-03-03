@@ -174,7 +174,7 @@ class Claim(Base):
     evidence_strength = Column(Float, nullable=True)
     agreement_ratio = Column(Float, nullable=True)
     final_score = Column(Float, nullable=True, index=True)
-    confidence_label = Column(String(20), nullable=True, index=True)  # low, medium, high
+    confidence_label = Column(String(20), nullable=True, index=True)  # low, medium, high, very_high
     
     # Status
     is_core_consensus = Column(Boolean, default=False, nullable=False, index=True)

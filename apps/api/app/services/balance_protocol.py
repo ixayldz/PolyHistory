@@ -20,17 +20,18 @@ class MBRStatus:
     compliant: bool
     missing_clusters: Dict[str, Any]
     details: Dict[str, Any]
+    topic_scope: str = "international"
+    user_override: bool = False
 
 
 class BalanceProtocol:
     """
     Enforce Minimum Balance Requirements (MBR) for historical analysis.
     
-    Requirements:
-    - TR_sources >= 2
-    - Foreign_countries >= 2
-    - Pro_stance_sources >= 1
-    - Contra_stance_sources >= 1
+    Adaptive MBR (PRD v2.0):
+    - International topics: Foreign_countries >= 2
+    - Domestic-only topics: Foreign_countries >= 1 (preference for 2)
+    - Common: TR_sources >= 2, Pro >= 1, Contra >= 1
     """
     
     def __init__(self):
@@ -39,7 +40,8 @@ class BalanceProtocol:
     def check_minimum_balance(
         self,
         case_id: str,
-        evidence_items: List[models.EvidenceItem]
+        evidence_items: List[models.EvidenceItem],
+        topic_scope: str = "international"
     ) -> MBRStatus:
         """
         Check if evidence pack meets MBR criteria.
@@ -122,14 +124,19 @@ class BalanceProtocol:
                 "message": "At least 1 Turkish press source required"
             }
         
-        # Check foreign countries >= 2
-        if len(details["foreign_countries"]) < 2:
+        # Check foreign countries — adaptive based on topic_scope
+        min_foreign = 2 if topic_scope == "international" else 1
+        if len(details["foreign_countries"]) < min_foreign:
             compliant = False
+            suggested = ["UK", "France", "Germany", "Russia"]
+            existing = set(details["foreign_countries"])
+            suggestions = [c for c in suggested if c.lower() not in existing][:2]
             missing_clusters["foreign_countries"] = {
-                "required": 2,
+                "required": min_foreign,
                 "found": len(details["foreign_countries"]),
                 "countries": list(details["foreign_countries"]),
-                "message": "Sources from at least 2 foreign countries required"
+                "message": f"Sources from at least {min_foreign} foreign countries required",
+                "suggested_search_terms": suggestions,
             }
         
         # Check foreign cluster minimums
@@ -173,7 +180,8 @@ class BalanceProtocol:
         return MBRStatus(
             compliant=compliant,
             missing_clusters=missing_clusters,
-            details=details
+            details=details,
+            topic_scope=topic_scope,
         )
     
     def apply_penalty(self, confidence_score: float) -> float:

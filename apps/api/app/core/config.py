@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     # Application
     APP_NAME: str = "PolyHistory API"
     DEBUG: bool = False
-    VERSION: str = "1.0.0"
+    VERSION: str = "2.0.0"
     SECRET_KEY: str = "supersecretkey"
     
     # Database
@@ -35,7 +35,9 @@ class Settings(BaseSettings):
     
     # Consensus Settings
     CONSENSUS_SIMILARITY_THRESHOLD: float = 0.85
-    MIN_MODELS_FOR_CONSENSUS: int = 2
+    MIN_MODELS_FOR_CONSENSUS: int = 1  # Lowered: graceful degradation handles partial responses
+    CONSENSUS_AGREEMENT_WEIGHT: float = 0.4
+    CONSENSUS_EVIDENCE_WEIGHT: float = 0.6
     
     # Evidence Settings
     MAX_EVIDENCE_PER_CASE: int = 100
@@ -44,6 +46,10 @@ class Settings(BaseSettings):
     # Balance Protocol
     MBR_PENALTY_PERCENTAGE: int = 20
     HIGH_RISK_CONFIDENCE_CAP: float = 0.6
+
+    # Free Tier Limits
+    FREE_TIER_MULTI_MODEL_LIMIT: int = 1
+    FREE_TIER_SINGLE_MODEL_LIMIT: int = 4
 
     # Celery
     CELERY_TASK_ALWAYS_EAGER: bool = False

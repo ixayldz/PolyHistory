@@ -20,7 +20,7 @@ from app.services.balance_protocol import BalanceProtocol
 from app.services.consensus_engine import ConsensusEngine, ConsensusClaim
 from app.services.evidence_builder import EvidenceBuilder
 from app.services.judge.base import JudgeOutput
-from app.services.judge.orchestrator import JudgeOrchestrator
+from app.services.judge.orchestrator import JudgeOrchestrator, DegradationLevel
 from app.services.proposition_parser import PropositionParser
 from app.tasks import celery_app
 
@@ -161,7 +161,11 @@ async def _persist_consensus_claims(
     return persisted
 
 
-async def run_case_workflow(case_id: str, case_payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+async def run_case_workflow(
+    case_id: str,
+    case_payload: Optional[Dict[str, Any]] = None,
+    analysis_mode: str = "multi_model",
+) -> Dict[str, Any]:
     """
     Execute full case workflow in async mode.
 
@@ -206,19 +210,36 @@ async def run_case_workflow(case_id: str, case_payload: Optional[Dict[str, Any]]
             definitions = parsed.normalized_definitions
 
             orchestrator = JudgeOrchestrator()
+            single_model = analysis_mode == "single_model"
             if orchestrator.is_ready():
-                model_outputs = await orchestrator.run_parallel_analysis(
+                analysis_result = await orchestrator.run_parallel_analysis(
                     case_id=case_id,
                     proposition=case.proposition,
                     definitions=definitions,
                     evidence_pack=evidence_pack,
+                    single_model_mode=single_model,
                 )
+                model_outputs = analysis_result.outputs
+                degradation_level = analysis_result.degradation_level
+                confidence_cap = analysis_result.confidence_cap
+                degradation_warnings = analysis_result.warnings
+
+                # If FALLBACK degradation, use local deterministic
+                if degradation_level == DegradationLevel.FALLBACK:
+                    model_outputs = _build_fallback_judge_outputs(
+                        proposition=case.proposition,
+                        claim_type=parsed.claim_type,
+                        evidence_pack=evidence_pack,
+                    )
             else:
                 model_outputs = _build_fallback_judge_outputs(
                     proposition=case.proposition,
                     claim_type=parsed.claim_type,
                     evidence_pack=evidence_pack,
                 )
+                degradation_level = DegradationLevel.FALLBACK
+                confidence_cap = 0.40
+                degradation_warnings = ["No model judges configured. Using local fallback."]
 
             await db.execute(delete(models.ModelOutput).where(models.ModelOutput.case_id == case_uuid))
             for model_name, output in model_outputs.items():
@@ -244,6 +265,10 @@ async def run_case_workflow(case_id: str, case_payload: Optional[Dict[str, Any]]
             await _persist_consensus_claims(case_uuid, all_consensus_claims)
 
             overall_confidence = consensus_result.overall_confidence
+
+            # Apply degradation confidence cap (PRD v2.0)
+            overall_confidence = min(overall_confidence, confidence_cap)
+
             if not mbr_status.compliant:
                 overall_confidence = balance.apply_penalty(overall_confidence)
 
@@ -253,11 +278,19 @@ async def run_case_workflow(case_id: str, case_payload: Optional[Dict[str, Any]]
                 overall_confidence = min(overall_confidence, risk_status["confidence_cap"])
 
             case.confidence_score = max(0.0, min(1.0, round(overall_confidence, 4)))
-            case.consensus_output = consensus_result.dict()
+
+            # Store consensus output with degradation metadata
+            consensus_dict = consensus_result.dict()
+            consensus_dict["degradation_level"] = degradation_level.value
+            consensus_dict["analysis_mode"] = analysis_mode
+            consensus_dict["degradation_warnings"] = degradation_warnings
+            case.consensus_output = consensus_dict
 
             verdict = consensus_result.summary
             if risk_status["warning"]:
                 verdict = f"{verdict} {risk_status['warning']}"
+            if degradation_warnings:
+                verdict = f"{verdict} [{'; '.join(degradation_warnings)}]"
             case.verdict_short = verdict
 
             case.status = "completed"
@@ -273,6 +306,8 @@ async def run_case_workflow(case_id: str, case_payload: Optional[Dict[str, Any]]
                         "mbr_compliant": case.mbr_compliant,
                         "models_used": list(model_outputs.keys()),
                         "claim_count": len(all_consensus_claims),
+                        "degradation_level": degradation_level.value,
+                        "analysis_mode": analysis_mode,
                     },
                 )
             )
@@ -301,22 +336,30 @@ async def run_case_workflow(case_id: str, case_payload: Optional[Dict[str, Any]]
 
 
 @celery_app.task(name="app.tasks.case_workflow.process_case_workflow")
-def process_case_workflow_task(case_id: str, case_payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def process_case_workflow_task(
+    case_id: str,
+    case_payload: Optional[Dict[str, Any]] = None,
+    analysis_mode: str = "multi_model",
+) -> Dict[str, Any]:
     """Celery task entrypoint."""
-    return asyncio.run(run_case_workflow(case_id, case_payload))
+    return asyncio.run(run_case_workflow(case_id, case_payload, analysis_mode))
 
 
-def enqueue_case_workflow(case_id: str, case_payload: Optional[Dict[str, Any]] = None) -> str:
+def enqueue_case_workflow(
+    case_id: str,
+    case_payload: Optional[Dict[str, Any]] = None,
+    analysis_mode: str = "multi_model",
+) -> str:
     """
     Enqueue workflow via Celery, with safe local async fallback.
     """
     try:
-        process_case_workflow_task.delay(case_id, case_payload)
+        process_case_workflow_task.delay(case_id, case_payload, analysis_mode)
         return "celery"
     except Exception:
         try:
             loop = asyncio.get_running_loop()
-            loop.create_task(run_case_workflow(case_id, case_payload))
+            loop.create_task(run_case_workflow(case_id, case_payload, analysis_mode))
         except RuntimeError:
-            asyncio.run(run_case_workflow(case_id, case_payload))
+            asyncio.run(run_case_workflow(case_id, case_payload, analysis_mode))
         return "local"

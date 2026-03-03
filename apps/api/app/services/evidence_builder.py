@@ -186,25 +186,52 @@ class EvidenceBuilder:
         evidence_items: List[models.EvidenceItem],
         _parsed_proposition: PropositionParsed
     ) -> List[models.EvidenceItem]:
+        """Score evidence using PRD v2.0 formula.
+        
+        Reliability = 0.30 × Source_Type_Score
+                    + 0.25 × Institution_Reputation
+                    + 0.20 × Document_Quality
+                    + 0.15 × Cross_Source_Consistency
+                    + 0.10 × Citation_Count_Score
+        """
+        # Pass 1: initial scores without consistency
         for item in evidence_items:
-            type_weight = self.SOURCE_TYPE_WEIGHTS.get(item.source_type, 0.4)
+            type_score = self.SOURCE_TYPE_WEIGHTS.get(item.source_type, 0.4)
             institution_score = self.INSTITUTION_REPUTATION.get(self._get_institution_type(item), 0.5)
+            document_quality = self._compute_document_quality(item)
+            citation_score = self._compute_citation_score(item)
+
+            item.reliability_score = (
+                type_score * 0.30 +
+                institution_score * 0.25 +
+                document_quality * 0.20 +
+                0.5 * 0.15 +  # placeholder consistency for pass 1
+                citation_score * 0.10
+            )
+
+        # Pass 2: refine with cross-source consistency
+        for item in evidence_items:
             consistency_score = await self._check_consistency(item, evidence_items)
-            citation_score = 0.5
+            type_score = self.SOURCE_TYPE_WEIGHTS.get(item.source_type, 0.4)
+            institution_score = self.INSTITUTION_REPUTATION.get(self._get_institution_type(item), 0.5)
+            document_quality = self._compute_document_quality(item)
+            citation_score = self._compute_citation_score(item)
 
             reliability = (
-                type_weight * 0.4 +
+                type_score * 0.30 +
                 institution_score * 0.25 +
-                consistency_score * 0.20 +
-                citation_score * 0.15
+                document_quality * 0.20 +
+                consistency_score * 0.15 +
+                citation_score * 0.10
             )
 
             item.reliability_score = min(reliability, 1.0)
             item.reliability_factors = {
-                "type_weight": type_weight,
-                "institution_score": institution_score,
-                "consistency_score": consistency_score,
-                "citation_score": citation_score,
+                "source_type_score": type_score,
+                "institution_reputation": institution_score,
+                "document_quality": document_quality,
+                "cross_source_consistency": consistency_score,
+                "citation_count_score": citation_score,
             }
 
         return evidence_items
@@ -227,10 +254,39 @@ class EvidenceBuilder:
 
     async def _check_consistency(
         self,
-        _item: models.EvidenceItem,
-        _all_items: List[models.EvidenceItem]
+        item: models.EvidenceItem,
+        all_items: List[models.EvidenceItem]
     ) -> float:
-        return 0.7
+        """Basic cross-source consistency: how many other items share the same stance?"""
+        if not all_items or len(all_items) <= 1:
+            return 0.5
+        others = [i for i in all_items if i is not item]
+        if not others:
+            return 0.5
+        same_stance = sum(1 for i in others if i.stance == item.stance)
+        return min(same_stance / len(others), 1.0)
+
+    def _compute_document_quality(self, item: models.EvidenceItem) -> float:
+        """PRD v2.0: born-digital sources get 1.0, others use snippet quality."""
+        if item.url and item.source_type in ("academic", "press"):
+            return 1.0  # born-digital
+        # Use average snippet quality as OCR confidence proxy
+        if item.snippets:
+            scores = [s.quality_score for s in item.snippets if s.quality_score is not None]
+            if scores:
+                return sum(scores) / len(scores)
+        return 0.7  # default for sources without quality data
+
+    def _compute_citation_score(self, item: models.EvidenceItem) -> float:
+        """Estimate citation impact from source type."""
+        citation_map = {
+            "primary": 0.9,
+            "academic": 0.8,
+            "secondary": 0.6,
+            "memoir": 0.4,
+            "press": 0.3,
+        }
+        return citation_map.get(item.source_type, 0.3)
 
     def create_snippet(
         self,

@@ -36,7 +36,8 @@ async def create_case(
     await db.refresh(case)
     
     # Trigger background processing
-    enqueue_case_workflow(str(case.id), case_in.model_dump(mode="json"))
+    analysis_mode = getattr(current_user, '_analysis_mode', 'multi_model')
+    enqueue_case_workflow(str(case.id), case_in.model_dump(mode="json"), analysis_mode)
     
     return case
 

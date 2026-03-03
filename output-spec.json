@@ -20,7 +20,9 @@
   "summary": {
     "short_verdict": "string",
     "confidence_score": 0,
-    "confidence_label": "low|medium|high"
+    "confidence_label": "low|medium|high|very_high",
+    "analysis_mode": "multi_model|single_model",
+    "degradation_level": "full|partial|reduced|fallback"
   },
   "timeline": [
     {
@@ -66,6 +68,13 @@
       "language": "string",
       "type": "primary|secondary|press|memoir",
       "reliability_score": 0.0,
+      "reliability_factors": {
+        "source_type_score": 0.0,
+        "institution_reputation": 0.0,
+        "document_quality": 0.0,
+        "cross_source_consistency": 0.0,
+        "citation_count_score": 0.0
+      },
       "snippets": [
         {
           "snippet_id": "string",

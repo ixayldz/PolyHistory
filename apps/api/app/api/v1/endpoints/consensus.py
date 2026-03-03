@@ -57,7 +57,7 @@ async def get_consensus(
         
         if claim.is_disputed:
             disputed_claims.append(claim_data)
-        elif claim.confidence_label == "high":
+        elif claim.confidence_label in ("high", "very_high"):
             core_claims.append(claim_data)
         elif claim.confidence_label == "medium":
             medium_claims.append(claim_data)

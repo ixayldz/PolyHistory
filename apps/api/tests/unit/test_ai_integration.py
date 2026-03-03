@@ -11,7 +11,7 @@ from app.services.judge.base import BaseJudge, JudgeOutput, JudgeTimeoutError, J
 from app.services.judge.gemini import GeminiJudge
 from app.services.judge.gpt import GPTJudge
 from app.services.judge.claude import ClaudeJudge
-from app.services.judge.orchestrator import JudgeOrchestrator, ModelResult
+from app.services.judge.orchestrator import JudgeOrchestrator, ModelResult, AnalysisResult, DegradationLevel
 from app.services.consensus_engine import ConsensusEngine, ConsensusClaim, ConsensusResult
 
 
@@ -122,10 +122,12 @@ class TestJudgeOrchestrator:
             evidence_pack=[]
         )
         
-        assert len(result) == 3
-        assert "gemini" in result
-        assert "gpt" in result
-        assert "claude" in result
+        assert isinstance(result, AnalysisResult)
+        assert len(result.outputs) == 3
+        assert "gemini" in result.outputs
+        assert "gpt" in result.outputs
+        assert "claude" in result.outputs
+        assert result.degradation_level == DegradationLevel.FULL
     
     @pytest.mark.asyncio
     async def test_run_parallel_analysis_partial_failure(self, mock_judges):
@@ -143,16 +145,16 @@ class TestJudgeOrchestrator:
             evidence_pack=[]
         )
         
-        assert len(result) == 3
-        assert result["gemini"] is not None
-        assert result["gpt"] is not None
-        assert result["claude"] is None  # Failed
+        assert isinstance(result, AnalysisResult)
+        assert len(result.outputs) == 3
+        assert result.outputs["gemini"] is not None
+        assert result.outputs["gpt"] is not None
+        assert result.outputs["claude"] is None  # Failed
+        assert result.degradation_level == DegradationLevel.PARTIAL
     
     @pytest.mark.asyncio
     async def test_run_parallel_analysis_insufficient_judges(self, mock_judges):
-        """Test with too many failures."""
-        from app.core.exceptions import InsufficientConsensusException
-        
+        """Test with too many failures — should return REDUCED degradation, not raise."""
         orchestrator = JudgeOrchestrator()
         orchestrator.judges = mock_judges
         
@@ -160,13 +162,16 @@ class TestJudgeOrchestrator:
         mock_judges["gpt"].analyze = AsyncMock(side_effect=Exception("GPT error"))
         mock_judges["claude"].analyze = AsyncMock(side_effect=Exception("Claude error"))
         
-        with pytest.raises(InsufficientConsensusException):
-            await orchestrator.run_parallel_analysis(
-                case_id="test-123",
-                proposition="Test proposition",
-                definitions={},
-                evidence_pack=[]
-            )
+        # Graceful degradation: should NOT raise, but return REDUCED level
+        result = await orchestrator.run_parallel_analysis(
+            case_id="test-123",
+            proposition="Test proposition",
+            definitions={},
+            evidence_pack=[]
+        )
+        assert result.degradation_level == DegradationLevel.REDUCED
+        assert result.confidence_cap == 0.50
+        assert result.successful_count == 1
     
     def test_get_available_judges(self, mock_judges):
         """Test getting available judges."""

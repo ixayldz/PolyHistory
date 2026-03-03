@@ -1,9 +1,9 @@
 # Product Requirements Document (PRD)
 ## PolyHistory: Evidence-First Multi-Perspective Historical Analysis Platform
 
-**Version:** 1.0  
-**Date:** February 27, 2026  
-**Status:** Draft  
+**Version:** 2.0  
+**Date:** March 3, 2026  
+**Status:** Final Draft  
 **Prepared by:** Product Team  
 
 ---
@@ -31,7 +31,7 @@ PolyHistory is an AI-powered historical research and analysis platform designed 
 1. **Ideological Echo Chambers:** Users are exposed to single-perspective historical narratives
 2. **Source Conflation:** No distinction between primary archives, academic peer-review, and press discourse
 3. **Cross-National Blindspots:** Inability to compare how different countries reported the same events simultaneously
-4. **Halucination Risks:** AI systems generating claims without verifiable evidence
+4. **Hallucination Risks:** AI systems generating claims without verifiable evidence
 5. **Lack of Transparency:** Opaque reasoning chains and hidden biases
 
 ### 2.2 Target Impact
@@ -48,11 +48,12 @@ To establish the global standard for evidence-based historical analysis by creat
 
 | Objective | Success Metric | Timeline |
 |-----------|---------------|----------|
-| Launch MVP in Turkey | 1000 active users | Month 4 |
+| Launch MVP (Internal Alpha) | Functional end-to-end pipeline | Month 1 |
+| Turkey Beta Launch | 500 beta users, advisory board formed | Month 4 |
 | Establish academic credibility | 5 university partnerships | Month 6 |
-| Expand to English-speaking markets | US/UK user base growth | Month 9 |
-| Achieve profitability | Positive unit economics | Month 12 |
-| Global archive integration | 10 institutional partnerships | Month 18 |
+| Turkey GA + English Beta | 5,000 MAU (TR), US/UK pilot programs | Month 9 |
+| English GA + Profitability | Positive unit economics, 25,000 MAU | Month 12 |
+| European Expansion | FR/DE/EL support, 10 institutional partnerships | Month 18 |
 
 ### 3.3 Non-Negotiable Principles
 1. **No Citation, No Claim:** Every assertion must link to specific evidence
@@ -93,17 +94,24 @@ To establish the global standard for evidence-based historical analysis by creat
 
 ### 4.3 Geographic Strategy
 
-#### Phase 1: Turkey (Months 1-6)
+#### Phase 1: Turkey — MVP & Beta (Months 1-6)
 - Target: University history departments, journalists, content creators
 - Positioning: "Çok Kaynaklı Tarih Analiz Platformu" (Non-political)
+- Languages: TR, EN (core), Ottoman Turkish OCR (beta)
 
-#### Phase 2: English Markets (Months 7-12)
+#### Phase 2: Turkey GA + English Beta (Months 7-9)
 - Target: US/UK academic institutions, policy research institutes
 - Positioning: "Evidence-first historical analysis engine"
+- Languages: Full EN support
 
-#### Phase 3: European Expansion (Months 13-18)
-- Add FR/EL full support
-- Target: European diplomatic history researchers
+#### Phase 3: English GA + European Expansion (Months 10-18)
+- Target: European diplomatic history researchers, think-tanks
+- Languages: FR, DE, EL full support
+
+#### Phase 4: MENA & Eurasia (Months 18-24)
+- Target: Middle Eastern and Russian-language historical research communities
+- Languages: AR, RU full support
+- Focus: Ottoman provincial archives, Russian diplomatic records
 
 ---
 
@@ -183,12 +191,17 @@ To establish the global standard for evidence-based historical analysis by creat
 
 #### 5.2.2 Multi-Lingual Query Expansion Engine (FR-BE-002)
 - **Description:** Generate language-specific query variations
-- **Supported Languages:** TR, EN, FR, EL (Phase 1); DE, RU, AR (Phase 2)
+- **Supported Languages:**
+  - Phase 1 (Months 1-6): TR, EN
+  - Phase 2 (Months 7-9): Ottoman Turkish (transliterated)
+  - Phase 3 (Months 10-18): FR, DE, EL
+  - Phase 4 (Months 18-24): AR, RU
 - **Capabilities:**
   - Period terminology mapping (e.g., "Angora Government" ↔ "Ankara Government")
-  - Actor name variants (e.g., "Mustafa Kemal" ↔ "Kemal Pasha")
-  - Institution and location mappings
+  - Actor name variants (e.g., "Mustafa Kemal" ↔ "Kemal Pasha" ↔ "مصطفى كمال")
+  - Institution and location mappings (historical ↔ modern names)
   - Keyword clustering (treaty, correspondence, dispatch, communiqué)
+  - Ottoman Turkish ↔ Modern Turkish transliteration
 
 #### 5.2.3 Retrieval Cluster (FR-BE-003)
 - **Sub-components:**
@@ -196,20 +209,37 @@ To establish the global standard for evidence-based historical analysis by creat
   - **Archive Collector:** Catalog queries, document reference numbers
   - **Press Collector:** Period newspapers, magazine archives
   - **Treaty/Official Text Collector:** Agreement texts, parliamentary records, diplomatic correspondence indices
+- **Target Data Sources (Phase 1):**
+  - **Turkey:** T.C. Cumhurbaşkanlığı Devlet Arşivleri (BOA/BCA), TBMM Tutanakları, İSAM Kütüphanesi
+  - **UK:** The National Archives (PRO/Kew) — FO 371/406 series, Hansard Parliamentary Records
+  - **France:** Archives diplomatiques (La Courneuve), Gallica BnF
+  - **Academic:** JSTOR, Google Scholar, OpenAlex, Semantic Scholar
+  - **Press:** Hathi Trust, Chronicling America, Türk Basın Arşivi
+- **Access Strategy:**
+  - API-first for sources with public APIs (Google Scholar, OpenAlex, Semantic Scholar)
+  - Licensed access agreements for institutional archives
+  - Web scraping with politeness protocols for open-access catalogs
+  - OCR pipeline for scanned/digitized documents
 - **Requirements:**
   - Rate limiting and politeness protocols
-  - Caching layer for frequent queries
+  - Caching layer for frequent queries (Redis, TTL: 24h)
   - Source reliability pre-scoring
+  - Retry with exponential backoff for failed retrievals
 
 #### 5.2.4 Text Processing Pipeline (FR-BE-004)
 - **Stages:**
   1. Document fetch with retry logic
-  2. OCR processing (when needed) with confidence scoring
-  3. Language detection
-  4. Text normalization and cleaning
-  5. Semantic chunking
-  6. Embedding generation
-  7. Metadata enrichment
+  2. Format detection (digital text / scanned image / mixed)
+  3. OCR processing (when needed) with confidence scoring
+     - Modern Latin script OCR (Tesseract / Azure Document Intelligence)
+     - **Ottoman Turkish OCR** (Arabic-script, specialized model)
+     - Confidence threshold: ≥ 0.70 to proceed; below triggers manual review flag
+  4. Ottoman Turkish → Modern Turkish transliteration (when applicable)
+  5. Language detection
+  6. Text normalization and cleaning
+  7. Semantic chunking (target: 512 tokens with 64-token overlap)
+  8. Embedding generation (Sentence Transformers)
+  9. Metadata enrichment (author, date, institution, geography, source type)
 - **Output Schema per Chunk:**
   ```json
   {
@@ -231,13 +261,17 @@ To establish the global standard for evidence-based historical analysis by creat
   - Snippet extraction with context preservation
   - Cross-reference detection
 - **Reliability Score Formula:**
+  > All component values are normalized to [0.0, 1.0] range. Final score is also [0.0, 1.0].
   ```
-  Reliability = (Type_Weight × 0.4) + 
+  Reliability = (Source_Type_Score × 0.35) + 
                 (Institution_Reputation × 0.25) + 
                 (Citation_Density × 0.15) + 
                 (Cross_Source_Consistency × 0.15) + 
-                (OCR_Confidence × 0.05)
+                (Document_Quality × 0.10)
   ```
+  - **Source_Type_Score:** Primary archive = 1.0, Academic peer-reviewed = 0.85, Official/treaty = 0.80, Press = 0.60, Memoir = 0.50, Unverified = 0.20
+  - **Document_Quality:** For OCR documents = OCR_Confidence; for born-digital = 1.0
+  - **Cross_Source_Consistency:** Calculated iteratively — initial pass uses uniform priors, then refines over 2-3 iterations until convergence (Δ < 0.01)
 
 #### 5.2.6 Multi-Model Judge Layer (FR-BE-006)
 - **Models:**
@@ -246,10 +280,14 @@ To establish the global standard for evidence-based historical analysis by creat
   - Claude Opus 4.6 (steel-man argumentation, nuanced interpretation)
 - **Requirements:**
   - Async parallel execution
-  - Timeout handling with fallback
-  - Strict JSON output validation
+  - Timeout handling: 30s per model, fallback to remaining models
+  - Strict JSON output validation (retry up to 2× on schema failure)
   - Claim-to-evidence referential integrity
-  - Partial consensus support (2/3 models)
+  - **Graceful Degradation Rules:**
+    - 3/3 models respond → full consensus
+    - 2/3 models respond → partial consensus + "reduced confidence" annotation
+    - 1/3 models respond → single-model output + "no consensus" warning
+    - 0/3 models respond → circuit breaker triggers, user notified, retry queued
 
 #### 5.2.7 Consensus Engine (FR-BE-007)
 - **Claim Graph Construction:**
@@ -257,33 +295,45 @@ To establish the global standard for evidence-based historical analysis by creat
   - Claim merging and normalization
   - Graph node creation per normalized claim
 - **Evidence Aggregation:**
+  > All scores normalized to [0.0, 1.0] before aggregation.
   ```
-  Evidence_Strength = Σ(Adjusted_Weight for claim)
-  Adjusted_Weight = Source_Type_Weight × Reliability_Score
+  Evidence_Strength = Σ(Source_Type_Score × Reliability_Score) / N_sources
   ```
+  - Normalized by source count to prevent bias toward topics with more available sources
 - **Agreement Score:**
   ```
-  Agreement_Ratio = Supporting_Models / Total_Models
-  Final_Claim_Score = Agreement_Ratio × Evidence_Strength
+  Agreement_Ratio = Supporting_Models / Responding_Models
   ```
+  - Uses `Responding_Models` (not `Total_Models`) to handle graceful degradation
+- **Final Claim Score:**
+  ```
+  Final_Claim_Score = (Agreement_Ratio × 0.4) + (Evidence_Strength × 0.6)
+  ```
+  - Evidence strength weighted higher than model agreement — strong evidence with model disagreement still produces meaningful scores, but triggers a "disputed" flag
 - **Confidence Labels:**
-  - Low: 0.00–0.30
-  - Medium: 0.31–0.60
-  - High: 0.61–1.00
+  - Low: 0.00–0.30 → "Insufficient evidence or significant disagreement"
+  - Medium: 0.31–0.60 → "Partial evidence with moderate support"
+  - High: 0.61–0.85 → "Well-supported with broad agreement"
+  - Very High: 0.86–1.00 → "Strong consensus with robust evidence"
 
 #### 5.2.8 Balance Protocol Enforcement (FR-BE-008)
 - **Minimum Balance Requirements (MBR):**
   - TR_sources ≥ 2
-  - Foreign_countries ≥ 2
+  - Foreign_countries ≥ 1 (≥ 2 preferred, adaptive based on topic scope)
   - Pro_stance_sources ≥ 1
   - Contra_stance_sources ≥ 1
+- **Adaptive MBR Logic:**
+  - If topic involves only 2 countries → Foreign_countries minimum = 1
+  - If topic is domestic-only → Foreign sources become "recommended" not "required"
+  - System auto-detects topic scope from Proposition Parser output
 - **Source Cluster Minimums:**
   - Turkey: ≥1 primary/academic + ≥1 press
   - Foreign: ≥1 press + ≥1 official/academic
 - **Enforcement Actions (if MBR not met):**
-  1. Confidence score penalty: -20%
-  2. Verdict annotation: "Balance requirement not fully satisfied"
-  3. UI warning with missing cluster listing
+  1. Confidence score penalty: × 0.80 (multiplicative, prevents negative scores)
+  2. Verdict annotation: "Balance requirement not fully satisfied — [missing clusters listed]"
+  3. UI warning with missing cluster listing and suggested search terms
+  4. Analysis still proceeds (never blocks) — user can override with acknowledgment
 
 #### 5.2.9 High-Risk Claim Detection (FR-BE-009)
 - **Trigger Keywords:** İşbirliği, ihanet, gizli anlaşma, casusluk, entrika
@@ -398,11 +448,25 @@ To establish the global standard for evidence-based historical analysis by creat
 
 ### 6.4 Reliability Requirements
 - 99.9% uptime SLA for Pro/Research tiers
+- 99.5% uptime target for Free tier
 - Automated backup (daily snapshots, 30-day retention)
-- Graceful degradation (partial results if one model fails)
-- Circuit breaker pattern for external APIs
+- Graceful degradation (partial results if one model fails — see FR-BE-006)
+- Circuit breaker pattern for external APIs (threshold: 5 consecutive failures)
+- Dead letter queue for failed case processing with automatic retry
 
-### 6.5 Auditability Requirements
+### 6.5 Accessibility Requirements
+- WCAG 2.1 AA compliance across all UI components
+- Screen reader compatibility for evidence panels and reports
+- Full keyboard navigation support
+- Color contrast ratio ≥ 4.5:1 for all text elements
+- Alternative text-based representations for:
+  - Timeline visualizations (tabular event list)
+  - Agreement heatmaps (structured data table)
+  - Disagreement panels (claim-by-claim text comparison)
+- Reduced motion mode for animations
+- Aria labels on all interactive elements
+
+### 6.6 Auditability Requirements
 - Complete audit trail for every case
 - Immutable case file storage
 - Model output versioning
@@ -418,12 +482,14 @@ To establish the global standard for evidence-based historical analysis by creat
 #### Free Tier
 - **Price:** $0
 - **Limits:**
-  - 5 analyses per month
-  - Single model only
-  - Limited source visibility (top 10)
+  - 5 analyses per month total:
+    - **1 full multi-model consensus analysis** (so users experience the core value)
+    - 4 single-model analyses
+  - Limited source visibility (top 10 sources)
   - No PDF export
   - Basic timeline only
-- **Goal:** User acquisition and viral growth
+  - Case archive: 10 cases (oldest auto-archived after 30 days)
+- **Goal:** User acquisition, demonstrate multi-model value, drive conversion
 
 #### Pro Tier
 - **Price:** $19-39/month
@@ -484,6 +550,47 @@ To establish the global standard for evidence-based historical analysis by creat
 - **Academic Reports:** White-label historical analysis reports
 - **API Usage:** $0.01-0.05 per call beyond tier limits
 - **Training & Workshops:** Institutional methodology training
+
+### 7.4 Cost Projection & Unit Economics
+
+#### Per-Query Cost Estimate (Full Multi-Model Analysis)
+
+| Component | Estimated Cost | Notes |
+|-----------|---------------|-------|
+| Gemini 3.1 Pro Preview | ~$0.05-0.15 | Input/output token pricing |
+| GPT-5.2 xhigh | ~$0.08-0.25 | Higher tier model |
+| Claude Opus 4.6 | ~$0.06-0.20 | Depends on context length |
+| Embedding generation | ~$0.01 | Sentence Transformers (self-hosted) |
+| Vector DB query | ~$0.001 | Pinecone/pgvector |
+| OCR processing | ~$0.01-0.05 | Only for scanned documents |
+| Infrastructure overhead | ~$0.02 | Compute, storage, bandwidth |
+| **Total per full analysis** | **~$0.23-0.68** | Varies by query complexity |
+
+#### Monthly Cost Projections
+
+| Scale | Users | Analyses/mo | Estimated Cost | Revenue Target |
+|-------|-------|-------------|----------------|----------------|
+| Alpha (M1-3) | 100 | 500 | ~$500 | $0 (pre-revenue) |
+| Beta (M4-6) | 500 | 2,500 | ~$2,500 | ~$3,000 |
+| Growth (M7-12) | 5,000 | 25,000 | ~$20,000 | ~$50,000 |
+| Scale (M12+) | 25,000 | 125,000 | ~$80,000 | ~$200,000 |
+
+#### Break-Even Analysis
+- **Target gross margin:** ≥60%
+- **Break-even point:** ~200 paid subscribers (Pro tier average)
+- **Key cost levers:** Model API costs (negotiate volume discounts), caching hit rate (target ≥40%), single-model fallback for simple queries
+
+### 7.5 API Versioning Strategy
+- **Version format:** `/api/v{major}/` (e.g., `/api/v1/`, `/api/v2/`)
+- **Backward compatibility:** Minimum 12-month support for deprecated API versions
+- **Deprecation process:**
+  1. Announce deprecation 6 months in advance via email + API response headers
+  2. Add `Sunset` HTTP header with deprecation date
+  3. Provide migration guide documentation
+  4. 3-month warning period with increased logging
+  5. Final sunset with 410 Gone response
+- **Breaking change policy:** Major version bump required for any breaking changes
+- **B2B SLA:** Enterprise tier guaranteed 18-month backward compatibility
 
 ---
 
@@ -619,10 +726,11 @@ To establish the global standard for evidence-based historical analysis by creat
 
 #### Week 1: Core Infrastructure
 - [ ] API Gateway setup (FastAPI)
-- [ ] Proposition Parser Service
+- [ ] Proposition Parser Service (NER + temporal inference)
 - [ ] Basic Query Expansion (TR/EN)
-- [ ] PostgreSQL + Vector DB setup
+- [ ] PostgreSQL + Vector DB (pgvector) setup
 - [ ] Evidence schema definition
+- [ ] Authentication service (JWT)
 
 **Deliverable:** Basic case flow without models
 
@@ -645,29 +753,32 @@ To establish the global standard for evidence-based historical analysis by creat
 
 #### Week 4: Consensus & UI
 - [ ] Claim merging algorithm
-- [ ] Weighted scoring implementation
+- [ ] Weighted scoring implementation (normalized [0,1] range)
 - [ ] Disagreement panel UI
 - [ ] Timeline v1
-- [ ] Confidence label system
+- [ ] Confidence label system (Low/Medium/High/Very High)
 - [ ] Basic PDF export
+- [ ] MBR enforcement with adaptive logic
 
 **Deliverable:** End-to-end working MVP
 
 ### 11.2 Post-MVP (Months 2-3)
 
 #### Month 2: Enhancement
-- [ ] FR + EL language support
+- [ ] Ottoman Turkish OCR integration (beta)
 - [ ] Advanced NLI contradiction detection
-- [ ] Archive connector framework
+- [ ] Archive connector framework (BOA/BCA, PRO/Kew)
 - [ ] Case versioning system
-- [ ] Public sharing links
+- [ ] User feedback system (correct/incorrect/incomplete marking)
+- [ ] A/B testing framework for consensus algorithms
 
 #### Month 3: Polish & Scale
-- [ ] Performance optimization
+- [ ] Performance optimization (caching, query optimization)
 - [ ] Advanced analytics dashboard
 - [ ] Mobile responsiveness
 - [ ] Onboarding flows
-- [ ] Feedback loop implementation
+- [ ] Collaborative research features (shared cases, annotations)
+- [ ] WCAG 2.1 AA accessibility compliance
 
 ### 11.3 v1.0 Launch (Months 4-6)
 
@@ -685,25 +796,118 @@ To establish the global standard for evidence-based historical analysis by creat
 - [ ] Monetization optimization
 - [ ] Expansion planning
 
-### 11.4 International Expansion (Months 7-12)
+### 11.4 International Expansion (Months 7-18)
 
 #### English Market Entry (Months 7-9)
-- [ ] Platform localization
+- [ ] Platform localization (full EN)
 - [ ] US/UK academic outreach
 - [ ] English content marketing
 - [ ] Partnership with research institutes
+- [ ] Public sharing links with embeddable widgets
 
-#### European Expansion (Months 10-12)
-- [ ] FR/EL full support
-- [ ] European archive integrations
+#### European Expansion (Months 10-18)
+- [ ] FR, DE, EL full language support
+- [ ] European archive integrations (La Courneuve, Gallica)
 - [ ] GDPR compliance certification
 - [ ] Multi-currency support
+- [ ] Offline case access (PWA)
+
+### 11.5 MENA & Eurasia Expansion (Months 18-24)
+- [ ] AR, RU full language support
+- [ ] Ottoman provincial archive integrations
+- [ ] Russian diplomatic archive connectors
+- [ ] Right-to-left UI support (Arabic)
 
 ---
 
-## 12. Risk Analysis & Mitigation
+## 12. Team & Resource Planning
 
-### 12.1 Technical Risks
+### 12.1 Core Team Requirements
+
+| Role | Count | Phase | Responsibilities |
+|------|-------|-------|-----------------|
+| Backend Engineer (Senior) | 2 | Month 1+ | FastAPI, model integration, consensus engine |
+| Frontend Engineer (Senior) | 1 | Month 1+ | Next.js, timeline/evidence panels, D3.js |
+| NLP/ML Engineer | 1 | Month 1+ | NER, query expansion, embedding pipeline, OCR |
+| DevOps Engineer | 1 | Month 1+ | K8s, CI/CD, monitoring, infrastructure |
+| Product Manager | 1 | Month 1+ | Roadmap, stakeholder management, metrics |
+| UX/UI Designer | 1 | Month 2+ | Design system, accessibility, user research |
+| QA Engineer | 1 | Month 3+ | Test automation, bias testing, regression |
+| Content/Historical Advisor | 1 (part-time) | Month 2+ | Source validation, methodology review |
+
+### 12.2 Hiring Timeline
+- **Month 1:** Core team (2 backend + 1 frontend + 1 NLP + 1 DevOps + 1 PM) = 6 FTEs
+- **Month 2:** Add UX designer + historical advisor = 7.5 FTEs
+- **Month 3:** Add QA engineer = 8.5 FTEs
+- **Month 7+:** Scale team for international expansion (add 2-3 engineers)
+
+### 12.3 External Resources
+- Advisory Board members (compensated per meeting)
+- Translation/localization contractors (Phase 3-4)
+- Security audit firm (annual penetration testing)
+- Legal counsel (GDPR, content liability)
+
+---
+
+## 13. Collaboration & User Feedback Features
+
+### 13.1 Collaborative Research (FR-COLLAB-001)
+- **Research Groups:** Users can create teams and share case files
+- **Shared Case Files:** Multiple researchers can annotate the same case
+- **Annotation System:** Inline comments on evidence snippets and claims
+- **Peer Review Workflow:**
+  1. Author creates case analysis
+  2. Invites reviewers (1-3)
+  3. Reviewers add annotations and approve/reject claims
+  4. Author revises based on feedback
+  5. Final version published with reviewer credits
+- **Access Control:** Owner, Editor, Commenter, Viewer roles
+- **Availability:** Pro tier and above
+
+### 13.2 User Feedback Loop (FR-FEEDBACK-001)
+- **Claim-Level Feedback:** Users can mark individual claims as:
+  - ✅ Accurate
+  - ❌ Inaccurate (with correction field)
+  - ⚠️ Incomplete (with additional evidence submission)
+- **Source Quality Feedback:** Users can flag sources as:
+  - Misattributed, outdated, low-quality, or biased
+- **Feedback Impact:**
+  - Aggregated feedback calibrates reliability scores over time
+  - Sources flagged by ≥3 users trigger manual review
+  - Claim corrections feed into model prompt improvement
+- **Crowdsourced Validation:** Academic-tier users can participate in validation programs, earning credits for reviewing cases
+
+### 13.3 Public Sharing & Embedding
+- Shareable case links (read-only, no login required)
+- Embeddable evidence panels for blogs/articles (iframe + oEmbed)
+- Citation-ready permalinks with persistent Case IDs
+- Social media preview cards (Open Graph + Twitter Cards)
+
+---
+
+## 14. Experimentation & Quality Framework
+
+### 14.1 A/B Testing Framework
+- **Consensus Algorithm Testing:** Compare alternative scoring formulas on identical case inputs
+- **Prompt Optimization:** Test different prompt formats across models to measure output quality
+- **UI Experiments:** Feature flags for new panel layouts, visualization types
+- **Methodology:** Minimum 100 cases per variant, statistical significance p < 0.05
+
+### 14.2 Evidence Weighting Optimization
+- Data-driven coefficient tuning for Reliability Score formula
+- Automated monitoring of user correction rates per source type
+- Quarterly re-calibration based on aggregated feedback data
+
+### 14.3 Model Performance Benchmarking
+- Monthly evaluation of each model's accuracy, latency, and cost
+- Model replacement readiness: adapter pattern allows hot-swapping models
+- Evaluation dataset: 50 curated historical cases with expert-validated ground truth
+
+---
+
+## 15. Risk Analysis & Mitigation
+
+### 15.1 Technical Risks
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -712,7 +916,7 @@ To establish the global standard for evidence-based historical analysis by creat
 | Vector DB performance | Low | High | Proper indexing, scaling, query optimization |
 | Data quality issues | Medium | High | Reliability scoring, OCR confidence, human review |
 
-### 12.2 Legal Risks
+### 15.2 Legal Risks
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -721,7 +925,7 @@ To establish the global standard for evidence-based historical analysis by creat
 | GDPR violations | Low | High | Privacy by design, legal review, compliance audits |
 | Academic fraud | Low | High | Terms of service, usage monitoring, disclaimers |
 
-### 12.3 Business Risks
+### 15.3 Business Risks
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -730,7 +934,7 @@ To establish the global standard for evidence-based historical analysis by creat
 | Competition | Medium | Medium | Differentiation, speed to market, partnerships |
 | Monetization failure | Low | High | Multiple revenue streams, B2B focus, value demonstration |
 
-### 12.4 Operational Risks
+### 15.4 Operational Risks
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -741,19 +945,23 @@ To establish the global standard for evidence-based historical analysis by creat
 
 ---
 
-## 13. Appendices
+## 16. Appendices
 
 ### Appendix A: Glossary
 
 - **Evidence Pack:** Structured collection of processed sources with reliability scores
-- **MBR (Minimum Balance Requirements):** Mandatory source diversity criteria
+- **MBR (Minimum Balance Requirements):** Mandatory source diversity criteria, with adaptive thresholds based on topic scope
 - **Steelman:** Presenting the strongest version of a counter-argument
-- **Consensus Engine:** Algorithm for merging multi-model outputs into weighted scores
-- **Claim:** A specific assertion derived from evidence
+- **Consensus Engine:** Algorithm for merging multi-model outputs into normalized weighted scores
+- **Claim:** A specific assertion derived from evidence, scored on [0.0, 1.0]
 - **Primary Source:** Contemporary documents, archives, official records
 - **Secondary Source:** Academic analysis and interpretation
 - **Discourse Evidence:** Press, propaganda, public statements
 - **Event Evidence:** Official documents, treaties, verified records
+- **Ottoman Turkish OCR:** Specialized optical character recognition for Arabic-script Ottoman Turkish documents
+- **Adaptive MBR:** Dynamic adjustment of balance requirements based on topic scope and available sources
+- **Graceful Degradation:** System's ability to provide partial results when not all models or sources are available
+- **Case File:** Immutable, versioned record of a complete analysis including inputs, evidence, model outputs, and consensus
 
 ### Appendix B: Model Output Schema
 
@@ -808,6 +1016,8 @@ To establish the global standard for evidence-based historical analysis by creat
 - Claude Opus 4.6 API
 - Sentence Transformers for embeddings
 - SpaCy/Transformers for NER
+- Tesseract / Azure Document Intelligence for OCR
+- Ottoman Turkish OCR specialized model
 
 ### Appendix D: Regulatory Compliance Checklist
 
@@ -834,6 +1044,9 @@ To establish the global standard for evidence-based historical analysis by creat
 | Academic citation export | ✓ | Partial | ✗ | Manual |
 | Auditability | ✓ | ✗ | ✗ | ✗ |
 | Historical focus | ✓ | General | General | General |
+| Collaborative research | ✓ | ✗ | ✗ | ✗ |
+| Ottoman Turkish OCR | ✓ | ✗ | ✗ | ✗ |
+| User feedback loop | ✓ | ✗ | ✗ | ✗ |
 
 ---
 
@@ -843,11 +1056,12 @@ To establish the global standard for evidence-based historical analysis by creat
 |---------|------|--------|---------|
 | 0.1 | 2026-02-27 | Initial Draft | Document creation |
 | 1.0 | 2026-02-27 | Product Team | Final review and approval |
+| 2.0 | 2026-03-03 | Product Team | Comprehensive revision: fixed timeline consistency, corrected formulas (Reliability Score, Consensus Engine), added adaptive MBR, redesigned Free Tier, added Ottoman Turkish OCR, cost projections, team planning, collaboration features, experimentation framework, accessibility requirements, API versioning strategy, MENA/Eurasia expansion phase |
 
-**Next Review Date:** 2026-03-27
+**Next Review Date:** 2026-04-03
 
 **Document Owner:** Product Team  
-**Stakeholders:** Engineering, Legal, Academic Advisory Board
+**Stakeholders:** Engineering, Legal, Academic Advisory Board, UX Design
 
 ---
 
