@@ -51,6 +51,11 @@ class Settings(BaseSettings):
     FREE_TIER_MULTI_MODEL_LIMIT: int = 1
     FREE_TIER_SINGLE_MODEL_LIMIT: int = 4
 
+    # Deep Research
+    TAVILY_API_KEY: str = ""
+    DEEP_RESEARCH_MAX_QUERIES: int = 12
+    DEEP_RESEARCH_MAX_RESULTS: int = 20
+
     # Celery
     CELERY_TASK_ALWAYS_EAGER: bool = False
 

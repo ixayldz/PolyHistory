@@ -1,11 +1,12 @@
 """
 Evidence Builder Service
-Builds evidence packs from retrieved sources.
+Builds evidence packs from retrieved sources using deep web research.
 """
 
 import asyncio
+import logging
 from datetime import date
-from typing import List, Optional
+from typing import List, Optional, Dict
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,6 +14,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import models
 from app.core.config import get_settings
 from app.schemas import PropositionParsed
+from app.services.deep_research import DeepResearchEngine, ResearchResult
+from app.services.source_classifier import SourceClassifier, ClassifiedSource
+
+logger = logging.getLogger(__name__)
 
 try:
     from sentence_transformers import SentenceTransformer as _SentenceTransformer
@@ -52,6 +57,8 @@ class EvidenceBuilder:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.embedding_model = None
+        self.research_engine = DeepResearchEngine()
+        self.source_classifier = SourceClassifier()
         try:
             self.embedding_model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
         except Exception:
@@ -94,17 +101,111 @@ class EvidenceBuilder:
 
         return limited_evidence
 
-    async def _collect_academic_sources(self, _parsed_proposition: PropositionParsed) -> List[models.EvidenceItem]:
-        return []
+    async def _collect_academic_sources(
+        self, parsed_proposition: PropositionParsed
+    ) -> List[models.EvidenceItem]:
+        """Collect academic sources via Tavily deep research."""
+        return await self._research_and_classify(
+            parsed_proposition, category="academic"
+        )
 
-    async def _collect_archive_sources(self, _parsed_proposition: PropositionParsed) -> List[models.EvidenceItem]:
-        return []
+    async def _collect_archive_sources(
+        self, parsed_proposition: PropositionParsed
+    ) -> List[models.EvidenceItem]:
+        """Collect archive/primary sources via Tavily deep research."""
+        return await self._research_and_classify(
+            parsed_proposition, category="archive"
+        )
 
-    async def _collect_press_sources(self, _parsed_proposition: PropositionParsed) -> List[models.EvidenceItem]:
-        return []
+    async def _collect_press_sources(
+        self, parsed_proposition: PropositionParsed
+    ) -> List[models.EvidenceItem]:
+        """Collect press sources via Tavily deep research."""
+        return await self._research_and_classify(
+            parsed_proposition, category="press"
+        )
 
-    async def _collect_treaty_sources(self, _parsed_proposition: PropositionParsed) -> List[models.EvidenceItem]:
-        return []
+    async def _collect_treaty_sources(
+        self, parsed_proposition: PropositionParsed
+    ) -> List[models.EvidenceItem]:
+        """Collect treaty/diplomatic sources via Tavily deep research."""
+        return await self._research_and_classify(
+            parsed_proposition, category="treaty"
+        )
+
+    async def _research_and_classify(
+        self,
+        parsed_proposition: PropositionParsed,
+        category: str,
+    ) -> List[models.EvidenceItem]:
+        """
+        Use DeepResearchEngine to find sources and SourceClassifier to classify them.
+        Returns EvidenceItem models ready for persistence.
+        """
+        if not self.research_engine.is_available():
+            return []
+
+        proposition = parsed_proposition.normalized_proposition or ""
+        entities = parsed_proposition.entities or []
+        tw = parsed_proposition.time_window
+
+        # Build search queries from proposition
+        queries = []
+        for lang in ["en", "tr"]:
+            base = f"{proposition} {' '.join(entities)}"
+            suffix = self.research_engine.SEARCH_CATEGORIES.get(
+                category, {}
+            ).get("search_suffix", "")
+            queries.append({"query": f"{base} {suffix}", "language": lang})
+
+        time_window = None
+        if tw and tw.start and tw.end:
+            time_window = (tw.start, tw.end)
+
+        report = await self.research_engine.research(
+            queries=queries, category=category, time_window=time_window
+        )
+
+        if not report.results:
+            return []
+
+        classified = await self.source_classifier.classify_results(
+            report.results, proposition
+        )
+
+        return [
+            self._classified_to_evidence(src, category) for src in classified
+        ]
+
+    def _classified_to_evidence(
+        self, src: ClassifiedSource, fallback_type: str
+    ) -> models.EvidenceItem:
+        """Convert a ClassifiedSource into an EvidenceItem model."""
+        source_date = None
+        if src.publication_date:
+            try:
+                from dateutil.parser import parse as dateparse
+                source_date = dateparse(src.publication_date).date()
+            except Exception:
+                source_date = None
+
+        return models.EvidenceItem(
+            title=src.title[:500],
+            publisher=src.publisher[:200],
+            publication_date=source_date,
+            country=src.country,
+            language=src.language,
+            source_type=src.source_type or fallback_type,
+            stance=src.stance or "neutral",
+            url=src.url,
+            snippets=[
+                self.create_snippet(
+                    text=src.content[:800],
+                    page_location=src.url,
+                    quality_score=min(src.relevance_score, 1.0),
+                )
+            ],
+        )
 
     async def _collect_local_fallback_sources(
         self,

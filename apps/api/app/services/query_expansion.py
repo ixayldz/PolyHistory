@@ -1,10 +1,18 @@
 """
 Query Expansion Service
-Expands queries across multiple languages for comprehensive retrieval.
+AI-powered multi-lingual query expansion for comprehensive historical retrieval.
+Uses Gemini for intelligent query generation with historical context.
+Falls back to dictionary-based expansion if AI is unavailable.
 """
 
-from typing import List, Dict, Set
+import logging
+from typing import List, Dict, Optional
 from dataclasses import dataclass
+
+from app.core.config import get_settings
+
+settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -16,10 +24,44 @@ class ExpandedQuery:
     keywords: List[str]
 
 
+# ─── AI-Powered Query Generation ─────────────────────────────────
+
+AI_EXPANSION_PROMPT = """You are a historical research query specialist.
+Given a historical proposition, generate optimized search queries in {language_name} ({lang_code}).
+
+Proposition: {proposition}
+Time period: {time_start} to {time_end}
+Entities: {entities}
+
+Generate exactly 5 search queries in {language_name} that would find:
+1. Official diplomatic documents and correspondence from this period
+2. Academic research papers analyzing this topic
+3. Period newspaper coverage and press reports
+4. Treaty texts, agreements, or official protocols
+5. Memoirs, diaries, or personal accounts
+
+Rules:
+- Use period-accurate terminology (e.g. "Angora" not "Ankara" for pre-1923 English sources)
+- Include relevant person names, place names, and event names in {language_name}
+- Each query should be optimized for web search engines
+- Include date ranges or year references where helpful
+
+Respond ONLY with a JSON array of 5 query strings, no explanation:
+["query1", "query2", "query3", "query4", "query5"]"""
+
+
+LANGUAGE_NAMES = {
+    "tr": "Turkish",
+    "en": "English",
+    "fr": "French",
+    "el": "Greek",
+}
+
+
 class QueryExpansionEngine:
     """Multi-lingual query expansion for historical source retrieval."""
-    
-    # Period terminology mappings
+
+    # ─── Fallback period terminology (used when AI is unavailable) ───
     PERIOD_TERMS = {
         "tr": {
             "mustafa kemal": ["mustafa kemal", "kemal paşa", "atatürk"],
@@ -46,27 +88,34 @@ class QueryExpansionEngine:
             "national movement": ["εθνικό κίνημα"],
         }
     }
-    
-    # Document type keywords by language
+
     DOC_TYPE_KEYWORDS = {
-        "tr": ["anlaşma", "antlaşma", "muhtere", "tutanak", "görüşme", "yazışma", "rapor"],
-        "en": ["treaty", "agreement", "convention", "protocol", "correspondence", "dispatch", "memorandum", "report"],
-        "fr": ["traité", "accord", "convention", "protocole", "correspondance", "dépêche", "mémorandum", "rapport"],
-        "el": ["συνθήκη", "συμφωνία", "σύμβαση", "πρωτόκολλο", "αλληλογραφία", "έκθεση"],
+        "tr": ["anlaşma", "antlaşma", "tutanak", "görüşme", "yazışma", "rapor", "belge"],
+        "en": ["treaty", "agreement", "correspondence", "dispatch", "memorandum", "report", "document"],
+        "fr": ["traité", "accord", "correspondance", "dépêche", "mémorandum", "rapport", "document"],
+        "el": ["συνθήκη", "συμφωνία", "αλληλογραφία", "έκθεση", "έγγραφο"],
     }
-    
-    # Source type keywords
+
     SOURCE_KEYWORDS = {
         "tr": ["arşiv", "gazete", "dergi", "belge", "anı"],
         "en": ["archive", "newspaper", "press", "document", "memoir"],
         "fr": ["archive", "journal", "presse", "document", "mémoire"],
         "el": ["αρχείο", "εφημερίδα", "τύπος", "έγγραφο", "απομνημόνευμα"],
     }
-    
+
     def __init__(self):
-        """Initialize the query expansion engine."""
-        pass
-    
+        """Initialize with optional AI model for intelligent expansion."""
+        self._gemini_model = None
+
+        if settings.GEMINI_API_KEY:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=settings.GEMINI_API_KEY)
+                self._gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+                logger.info("AI query expansion enabled (Gemini)")
+            except Exception as e:
+                logger.warning(f"Gemini init failed for query expansion: {e}")
+
     def expand(
         self,
         proposition: str,
@@ -76,45 +125,89 @@ class QueryExpansionEngine:
     ) -> Dict[str, ExpandedQuery]:
         """
         Expand a proposition into multi-lingual search queries.
-        
-        Args:
-            proposition: Original proposition text
-            entities: Extracted entities
-            time_window: (start_date, end_date) tuple
-            languages: List of target languages (default: ['tr', 'en'])
-            
-        Returns:
-            Dict mapping language codes to ExpandedQuery objects
+        Uses AI when available, falls back to dictionary matching.
         """
         if languages is None:
             languages = ["tr", "en"]
-        
+
         expanded = {}
-        
+
         for lang in languages:
+            # Try AI expansion first
+            if self._gemini_model:
+                ai_queries = self._ai_expand(proposition, entities, time_window, lang)
+                if ai_queries:
+                    expanded[lang] = ExpandedQuery(
+                        language=lang,
+                        original=proposition,
+                        variants=ai_queries,
+                        keywords=self._generate_keywords(lang)
+                    )
+                    continue
+
+            # Fallback to dictionary-based expansion
             variants = self._generate_variants(proposition, entities, lang)
             keywords = self._generate_keywords(lang)
-            
+
             expanded[lang] = ExpandedQuery(
                 language=lang,
                 original=proposition,
                 variants=variants,
                 keywords=keywords
             )
-        
+
         return expanded
-    
+
+    def _ai_expand(
+        self,
+        proposition: str,
+        entities: List[str],
+        time_window: tuple,
+        lang: str
+    ) -> Optional[List[str]]:
+        """Generate queries using AI model."""
+        try:
+            time_start = str(time_window[0]) if time_window[0] else "unknown"
+            time_end = str(time_window[1]) if time_window[1] else "unknown"
+
+            prompt = AI_EXPANSION_PROMPT.format(
+                proposition=proposition,
+                language_name=LANGUAGE_NAMES.get(lang, lang),
+                lang_code=lang,
+                time_start=time_start,
+                time_end=time_end,
+                entities=", ".join(entities) if entities else "none specified",
+            )
+
+            response = self._gemini_model.generate_content(prompt)
+            text = response.text.strip()
+
+            # Parse JSON array from response
+            import json
+            import re
+
+            # Try extracting JSON array
+            match = re.search(r'\[.*\]', text, re.DOTALL)
+            if match:
+                queries = json.loads(match.group())
+                if isinstance(queries, list) and len(queries) > 0:
+                    return [str(q) for q in queries[:5]]
+
+        except Exception as e:
+            logger.warning(f"AI query expansion failed for {lang}: {e}")
+
+        return None
+
     def _generate_variants(
         self,
         proposition: str,
         entities: List[str],
         lang: str
     ) -> List[str]:
-        """Generate query variants for a specific language."""
+        """Fallback: Generate query variants using dictionary matching."""
         variants = []
         period_terms = self.PERIOD_TERMS.get(lang, {})
-        
-        # Replace entities with language-specific variants
+
         for entity in entities:
             entity_lower = entity.lower()
             if entity_lower in period_terms:
@@ -122,53 +215,48 @@ class QueryExpansionEngine:
                     new_variant = proposition.lower().replace(entity_lower, variant)
                     if new_variant != proposition.lower():
                         variants.append(new_variant)
-        
-        # Add entity-only queries
+
         for entity in entities:
             variants.append(entity)
-        
-        # Remove duplicates
+
         return list(set(variants))
-    
+
     def _generate_keywords(self, lang: str) -> List[str]:
         """Generate document type keywords for a language."""
         doc_keywords = self.DOC_TYPE_KEYWORDS.get(lang, [])
         source_keywords = self.SOURCE_KEYWORDS.get(lang, [])
         return doc_keywords + source_keywords
-    
+
     def get_search_queries(
         self,
         expanded: Dict[str, ExpandedQuery],
         source_types: List[str] = None
     ) -> List[Dict]:
         """
-        Generate concrete search queries for retrieval systems.
-        
-        Args:
-            expanded: Output from expand()
-            source_types: Filter by source types
-            
+        Generate concrete search queries for the deep research engine.
+
         Returns:
-            List of search query dictionaries
+            List of {"query": str, "language": str, "type": str} dicts
         """
         queries = []
-        
+
         for lang, query in expanded.items():
-            # Combine variants with keywords
+            # Add each variant as a standalone query
             for variant in query.variants:
-                for keyword in query.keywords:
-                    queries.append({
-                        "language": lang,
-                        "query": f"{variant} {keyword}",
-                        "type": "variant_keyword"
-                    })
-            
-            # Add entity-focused queries
-            for variant in query.variants[:3]:  # Limit to first 3 variants
                 queries.append({
                     "language": lang,
                     "query": variant,
-                    "type": "entity_focused"
+                    "type": "ai_generated" if self._gemini_model else "dictionary_variant",
                 })
-        
+
+            # For dictionary fallback, also combine with keywords
+            if not self._gemini_model:
+                for variant in query.variants[:3]:
+                    for keyword in query.keywords[:3]:
+                        queries.append({
+                            "language": lang,
+                            "query": f"{variant} {keyword}",
+                            "type": "variant_keyword"
+                        })
+
         return queries
